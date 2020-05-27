@@ -1,8 +1,8 @@
-=============================================================
-template-package : python + azure + conda + docs
-=============================================================
+===================================================================
+practice-package : a repo containing practice problems and examples
+===================================================================
 
-This is a sample repo for demonstrating template CI pipelines.
+The repo contains software questions and solutions (implemented in python).
 
 .. badges
 
@@ -17,27 +17,27 @@ This is a sample repo for demonstrating template CI pipelines.
     * - package
       - |version| |platform| |downloads|
 
-.. |docs| image:: https://readthedocs.org/projects/template-package/badge/?version=latest
+.. |docs| image:: https://readthedocs.org/projects/practice-package/badge/?version=latest
     :target: `Read the Docs`_
     :alt: Docs
 
-.. |build| image:: https://img.shields.io/azure-devops/build/pyt3r/template/3
+.. |build| image:: https://img.shields.io/azure-devops/build/pyt3r/practice/4
     :alt: Build
     :target: `Azure Pipeline`_
 
-.. |coverage| image:: https://img.shields.io/azure-devops/coverage/pyt3r/template/3
+.. |coverage| image:: https://img.shields.io/azure-devops/coverage/pyt3r/practice/4
     :alt: Coverage
     :target: `Azure Pipeline`_
 
-.. |version| image:: https://img.shields.io/conda/v/pyt3r/template
+.. |version| image:: https://img.shields.io/conda/v/pyt3r/practice
     :alt: Version
     :target: `Anaconda Cloud`_
 
-.. |platform| image:: https://img.shields.io/conda/pn/pyt3r/template
+.. |platform| image:: https://img.shields.io/conda/pn/pyt3r/practice
     :alt: Platform
     :target: `Anaconda Cloud`_
 
-.. |downloads| image:: https://img.shields.io/conda/dn/pyt3r/template
+.. |downloads| image:: https://img.shields.io/conda/dn/pyt3r/practice
     :alt: Platform
     :target: `Anaconda Cloud`_
 
@@ -46,17 +46,17 @@ This is a sample repo for demonstrating template CI pipelines.
 .. links
 
 .. _conda-build: https://docs.conda.io/projects/conda-build/en/latest/
-.. _Azure Pipeline: https://dev.azure.com/pyt3r/template/_build
-.. _Anaconda Cloud: https://anaconda.org/pyt3r/template
-.. _Read the Docs: https://template-package.readthedocs.io
+.. _Azure Pipeline: https://dev.azure.com/pyt3r/practice/_build
+.. _Anaconda Cloud: https://anaconda.org/pyt3r/practice
+.. _Read the Docs: https://practice-package.readthedocs.io
 
 .. _(mini)conda: https://docs.conda.io/en/latest/miniconda.html
 .. _conda-recipe/meta.yaml: conda-recipe/meta.yaml
 .. _azure-pipelines.yml: azure-pipelines.yml
-.. _https://dev.azure.com/pyt3r/template/_build: https://dev.azure.com/pyt3r/template/_build
-.. _https://anaconda.org/pyt3r/template: https://anaconda.org/pyt3r/template
+.. _https://dev.azure.com/pyt3r/practice/_build: https://dev.azure.com/pyt3r/practice/_build
+.. _https://anaconda.org/pyt3r/practice: https://anaconda.org/pyt3r/practice
 .. _.readthedocs.yml: .readthedocs.yml
-.. _https://template-package.readthedocs.io: https://template-package.readthedocs.io
+.. _https://practice-package.readthedocs.io: https://practice-package.readthedocs.io
 .. _MIT License: LICENSE
 
 .. end links
@@ -65,71 +65,56 @@ This is a sample repo for demonstrating template CI pipelines.
 
 Features
 ################
+Review and practice an array of problems; many of which have been excerpted from the following sources:
 
-* triggers a template `Azure Pipeline`_ to build, test, and publish a conda package artifact
-* triggers a template `Read the Docs`_ pipeline to build, publish, and deploy an html artifact
+* Cracking the Coding Interview
+* ...
 
-Prerequisites
+The problems cut across the following domains:
+
+* Data Structures
+* Dynamic Programming
+* Multi Processing
+* Design Patterns
+* ...
+
+
+View & Download
 ################
 
-* `(mini)conda`_
-* python3.7
-* Unix
+View and download the complete list of problem statements and solutions from the following Read the Docs page:
 
-Azure Builds
+`https://practice-package.readthedocs.io`_
+
+Run Locally
 ################
 
-Each commit (and PR) to the master branch invokes the `azure-pipelines.yml`_ script, which automates Steps 1 through 3 below.
+To invoke a problem from the repo, please use the following instructions.
 
-1. Create and activate a conda environment::
+0. Clone the repo
+
+1. Navigate to the working directory::
+
+    $ cd practice-package
+
+2. Create and activate the practice conda environment::
 
     $ conda env create --name test-env --file ci/test-env-requirements.yml python=3.7
     $ conda activate test-env
 
-2. Build and add the template package to the environment::
+3. Select a practice problem.
+
+Invoke the solution from the repo::
+
+    (test-env) $ python ...this is a placeholder...
+
+Or, install the practice package and invoke the selected problem from the package::
 
     (test-env) $ cd ..
-    (test-env) $ mkdir conda-build
-    (test-env) $ conda build template-package --output-folder=conda-build
-    (test-env) $ conda install conda-build/**/template*.tar.bz2
-
-3. Run the tests against the template package and view the report::
-
-    (test-env) $ PACKAGE_PATH=`python -c "import template, os; print(os.path.dirname(template.__file__))"`
-    (test-env) $ coverage run -m --source=${PACKAGE_PATH} unittest discover template-package/tests
-    (test-env) $ coverage report -m
-    (test-env) $ rm -r .coverage
-
-4. (Optional) Test the entry point defined in `conda-recipe/meta.yaml`_::
-
-    (test-env) $ template-entry-point
+    (test-env) $ conda install practice -c pyt3r
+    (test-env) $ python -m practice.this.is.a.placeholder
 
 
-The Azure pipeline concludes by publishing the coverage report and conda package artifact to: `https://dev.azure.com/pyt3r/template/_build`_
-
-.. image:: images/artifacts.png
-
-Users may now access and upload the conda artifact to Anaconda Cloud.  The current build is published to: `https://anaconda.org/pyt3r/template`_
-
-5. (Optional) Upload the artifact (requires an Anaconda account)::
-
-    (test-env) $ anaconda upload conda-build/**/template*.tar.bz2
-
-6. (Optional) Deactivate::
-
-    (test-env) $ conda deactivate
-    $ echo "..and we're back to normal"
-
-Once uploaded, the package may be installed as follows::
-
-    $ conda install -c pyt3r template
-
-Read The Docs
-################
-
-Each commit (and PR) to the master branch will also invoke the `.readthedocs.yml`_ script to build the documentation.
-
-Upon a successful build, the resulting html artifact is deployed to: `https://template-package.readthedocs.io`_
 
 Author
 ################
