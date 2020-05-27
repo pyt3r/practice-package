@@ -1,7 +1,7 @@
-Welcome to template-package!
-=============================
+Welcome to the practice-package!
+================================
 
-This is template documentation for a template-package.
+This is the documentation page for the practice-package.
 
 .. toctree::
    :maxdepth: 1
