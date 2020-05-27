@@ -1,11 +1,14 @@
 """
-https://leetcode.com/problems/two-sum/
+Two Sum
+===============
 
-Given an array of integers, return indices of the two numbers such that they add up to a specific target.
+https://leetcode.com/problems/two-sum
 
-You may assume that each input would have exactly one solution, and you may not use the same element twice.
+  Given an array of integers, return indices of the two numbers such that they add up to a specific target.
 
-Example::
+  You may assume that each input would have exactly one solution, and you may not use the same element twice.
+
+  Example::
 
     Given nums = [2, 7, 11, 15], target = 9,
 
@@ -40,5 +43,4 @@ if __name__ == '__main__':
     driver = Driver(Solution, 'twoSum')
     driver.run(
         nums=[2, 7, 11, 15],
-        target=9,
-    )
+        target=9, )

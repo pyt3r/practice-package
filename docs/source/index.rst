@@ -8,6 +8,4 @@ This is template documentation for a template-package.
    :caption: Contents:
 
    getting_started
-   function
-   class
-   examples/index
+   leet/index

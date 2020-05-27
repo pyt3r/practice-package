@@ -69,12 +69,17 @@ html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
 
+practice_dir = os.path.join('..', '..', 'practice')
+
+leet_subdir = 'leet'
+leet_dir = os.path.join(practice_dir, leet_subdir)
+
 # sphinx-gallery configuration
 sphinx_gallery_conf = {
     # path to your example scripts
-    'examples_dirs': [ os.path.join('..', '..', 'examples') ],
+    'examples_dirs': [leet_dir],
     # path to where to save gallery generated output
-    'gallery_dirs': ['examples'],
+    'gallery_dirs': [leet_subdir],
     # specify that examples should be ordered according to filename
     #'within_subsection_order': FileNameSortKey,
     # directory where function granular galleries are stored
