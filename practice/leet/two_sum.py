@@ -4,9 +4,11 @@ Two Sum
 
 https://leetcode.com/problems/two-sum
 
-  Given an array of integers, return indices of the two numbers such that they add up to a specific target.
+  Given an array of integers,
+  return indices of the two numbers such that they add up to a specific target.
 
-  You may assume that each input would have exactly one solution, and you may not use the same element twice.
+  You may assume that each input would have exactly one solution,
+  and you may not use the same element twice.
 
   Example::
 
@@ -22,7 +24,7 @@ class Solution:
     @staticmethod
     def twoSum(nums: list, target: int) -> list:
         solution = None
-        for ptr in range(len(nums)-1):
+        for ptr in range(len(nums) - 1):
             success, solution = Solution.helper(ptr, nums, target)
             if success:
                 break
@@ -31,10 +33,10 @@ class Solution:
     @staticmethod
     def helper(ptr, nums, target):
         success, solution = False, None
-        for i, n in enumerate(nums[ptr+1:], 1):
+        for i, n in enumerate(nums[ptr + 1:], 1):
             test = nums[ptr] + n
             if test == target:
-                return True, [ptr, ptr+i]
+                return True, [ptr, ptr + i]
         return success, solution
 
 
