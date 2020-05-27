@@ -2,7 +2,7 @@
 practice-package : a repo containing practice problems and examples
 ===================================================================
 
-The repo contains software questions and solutions (implemented in python).
+The repo contains a variety of software examples, questions, and solutions (implemented in python).
 
 .. badges
 
@@ -64,7 +64,7 @@ The repo contains software questions and solutions (implemented in python).
 .. contents:: :local:
 
 Features
-################
+##################
 Review and practice an array of problems; many of which have been excerpted from the following sources:
 
 * Cracking the Coding Interview
@@ -79,49 +79,59 @@ The problems cut across the following domains:
 * ...
 
 
-View & Download
-################
+Read the Docs
+##################
 
 View and download the complete list of problem statements and solutions from the following Read the Docs page:
 
 `https://practice-package.readthedocs.io`_
 
-Run Locally
-################
+Repo Invocation
+##################
 
 To invoke a problem from the repo, please use the following instructions.
 
-0. Clone the repo
+1. Clone the repo
 
-1. Navigate to the working directory::
+2. Navigate to the working directory::
 
     $ cd practice-package
 
-2. Create and activate the practice conda environment::
+3. Create and activate the practice conda environment::
 
     $ conda env create --name test-env --file ci/test-env-requirements.yml python=3.7
     $ conda activate test-env
 
-3. Select a practice problem.
+4. View a list of all available problems and examples::
 
-Invoke the solution from the repo::
+    (test-env) $ python -m ...this is a placeholder...
 
-    (test-env) $ python ...this is a placeholder...
+5. Select an available problem or example and invoke its solution::
 
-Or, install the practice package and invoke the selected problem from the package::
+    (test-env) $ python -m ...this is a placeholder...
 
-    (test-env) $ cd ..
-    (test-env) $ conda install practice -c pyt3r
-    (test-env) $ python -m practice.this.is.a.placeholder
+Package Invocation
+##################
+To invoke a problem from the package, please use the following instructions.
 
+1. Install the package::
 
+    $ conda install practice -c pyt3r
+
+2. View a list of all available problems and examples::
+
+    $ pyt3r-practice list
+
+3. Select an available problem or example and invoke its solution::
+
+    $ pyt3r-practice run <name>
 
 Author
-################
+##################
 
 * ``pyt3r``
 
 License
-################
+##################
 
 * `MIT License`_
