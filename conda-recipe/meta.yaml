@@ -1,0 +1,24 @@
+package:
+  name: template
+  version: 0.0.5
+
+about:
+  author : pyt3r
+  license_file: LICENSE
+  summary: a template python package
+
+source:
+  path: ..
+
+build:
+  noarch: python
+  entry_points:
+    - template-entry-point = template.scripts.hello:world
+
+requirements:
+  build:
+    - python=3.7
+    - pyyaml
+
+  run:
+    - python
