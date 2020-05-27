@@ -10,12 +10,18 @@ https://leetcode.com/problems/two-sum
   You may assume that each input would have exactly one solution,
   and you may not use the same element twice.
 
-  Example::
+  Example:
 
-    Given nums = [2, 7, 11, 15], target = 9,
+    Given::
+      nums = [2, 7, 11, 15]
 
-    Because nums[0] + nums[1] = 2 + 7 = 9,
-    return [0, 1].
+      target = 9
+
+    Return::
+      [0, 1]
+
+    Explanation::
+      nums[0] + nums[1] = 2 + 7 = 9
 """
 
 
@@ -38,11 +44,16 @@ class Solution:
             if test == target:
                 return True, [ptr, ptr + i]
         return success, solution
+# %%
+
+
+def main():
+    from practice.util.driver import Driver
+    drv = Driver(Solution, 'twoSum')
+    drv.run(
+        nums=[2, 7, 11, 15],
+        target=9, )
 
 
 if __name__ == '__main__':
-    from practice.util.driver import Driver
-    driver = Driver(Solution, 'twoSum')
-    driver.run(
-        nums=[2, 7, 11, 15],
-        target=9, )
+    main()

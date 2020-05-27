@@ -1,26 +1,27 @@
-from pprint import pprint as pp
-
-
 class Driver:
-
-    def banner(x): return '\n' + (' {} '.format(x).center(45, "="))
 
     def __init__(self, solution, method):
         self.solution = solution
         self.method = method
 
     def run(self, **inputs):
-
         fun = getattr(self.solution, self.method)
-        outputs = fun(**inputs)
-
         printMe = [
             ('function', fun),
-            ('inputs', inputs),
-            ('outputs', outputs), ]
-
-        for banner, o in printMe:
-            print(Driver.banner(banner))
-            pp(o)
-
+            ('inputs', inputs), ]
+        Driver.print(printMe)
+        outputs = fun(**inputs)
+        Driver.print([('outputs', outputs), ])
         return outputs
+
+    @staticmethod
+    def print(printMe):
+        from pprint import pprint as pp
+
+        for banner, obj in printMe:
+            print(Driver.banner(banner))
+            pp(obj)
+
+    @staticmethod
+    def banner(x):
+        return '\n' + (' {} '.format(x).center(50, "="))
