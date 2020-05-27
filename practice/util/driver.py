@@ -3,7 +3,7 @@ from pprint import pprint as pp
 
 class Driver:
 
-    banner = lambda x: '\n' + (' {} '.format(x).center(45, "="))
+    def banner(x): return '\n' + (' {} '.format(x).center(45, "="))
 
     def __init__(self, solution, method):
         self.solution = solution
@@ -24,5 +24,3 @@ class Driver:
             pp(o)
 
         return outputs
-
-
