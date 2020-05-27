@@ -1,13 +1,13 @@
 Functions
 ==============
 
-These are the functions for the tempate package:
+These are the functions for the practice package:
 
 
-.. autofunction:: template.getResourceManifest
+.. autofunction:: practice.getResourceManifest
 
-.. autofunction:: template.dumpResourceManifest
+.. autofunction:: practice.dumpResourceManifest
 
-.. autofunction:: template.module.covered
+.. autofunction:: practice.module.covered
 
-.. autofunction:: template.module.uncovered
+.. autofunction:: practice.module.uncovered

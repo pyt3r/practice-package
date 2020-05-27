@@ -1,12 +1,12 @@
 import unittest
-from template.module import covered
+from practice.module import covered
 
 
 class Test(unittest.TestCase):
 
     def test_module(self):
-        import template
-        print('template_package:', template)
+        import practice
+        print('template_package:', practice)
         assert covered() is not None
 
 

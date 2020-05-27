@@ -1,11 +1,11 @@
 package:
-  name: template
-  version: 0.0.5
+  name: practice
+  version: 0.0.0
 
 about:
   author : pyt3r
   license_file: LICENSE
-  summary: a template python package
+  summary: a package for practicing problems
 
 source:
   path: ..
@@ -13,7 +13,7 @@ source:
 build:
   noarch: python
   entry_points:
-    - template-entry-point = template.scripts.hello:world
+    - practice-entry-point = practice.scripts.hello:world
 
 requirements:
   build:

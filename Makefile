@@ -1,4 +1,4 @@
-PACKAGE_NAME=template
+PACKAGE_NAME=practice
 PACKAGE_PATH=`python -c "import ${PACKAGE_NAME}, os; print(os.path.dirname(${PACKAGE_NAME}.__file__))"`
 PYVERSION=3.7
 

@@ -1,5 +1,5 @@
 import unittest
-from template.template_class import TemplateClass
+from practice.template_class import TemplateClass
 
 
 class Test(unittest.TestCase):

@@ -1,9 +1,5 @@
 Classes
 ==============
 
-.. autoclass:: template.template_class.TemplateClass
+.. autoclass:: practice.template_class.TemplateClass
    :members:
-
-.. raw:: html
-
-    <div class="sphx-glr-clear"></div>
