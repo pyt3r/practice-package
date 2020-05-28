@@ -13,7 +13,7 @@ The repo contains a variety of software examples, questions, and solutions (impl
     * - docs
       - |docs|
     * - tests
-      - |build| |coverage|
+      - |build|
     * - package
       - |version| |platform| |downloads|
 
