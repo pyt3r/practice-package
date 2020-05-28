@@ -61,6 +61,15 @@ docs-latex:
 	make latexpdf && \
 	cd ..
 
+git-merge: # if your changes are in develop...
+	git checkout develop
+	git pull
+	git merge origin/master
+	git push origin develop
+
+git-rebase: # if you want to put the develop commits on top of the conflicting master commits...
+	echo "to do - this should replage the make git-merge call above"
+
 clean:
 	rm -rf .coverage htmlcov coverage.xml tests/.coverage tests/htmlcov tests/coverage.xml
 	rm -rf channeldata.json index.html noarch osx-64 linux-32 linux-64 win-32 win-64 icons
@@ -68,4 +77,4 @@ clean:
 	find . -name "*.pyc" | xargs rm -rf
 	rm -rf docs/build/ docs/source/leet
 
-.PHONY: test-env remove-test-env rtd-env _pip-env add-packages pep8 lint test conda-package test-package docs-html docs-pdf docs-latex clean
+.PHONY: test-env remove-test-env rtd-env _pip-env add-packages pep8 lint test conda-package test-package docs-html docs-pdf docs-latex git-merge git-rebase clean
