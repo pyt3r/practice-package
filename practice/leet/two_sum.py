@@ -2,26 +2,30 @@
 Two Sum
 ===============
 
-https://leetcode.com/problems/two-sum
+https://leetcode.com/problems/two-sum/
 
-  Given an array of integers,
-  return indices of the two numbers such that they add up to a specific target.
+  Description:
+    Given an array of integers,
+    return indices of the two numbers,
+    such that they add up to a specific target.
 
-  You may assume that each input would have exactly one solution,
-  and you may not use the same element twice.
+    You may assume that each input would have exactly one solution,
+    and you may not use the same element twice.
 
   Example:
-
-    Given::
+    Input:
       nums = [2, 7, 11, 15]
 
       target = 9
 
-    Return::
+    Output:
       [0, 1]
 
-    Explanation::
+    Explanation:
       nums[0] + nums[1] = 2 + 7 = 9
+
+
+One solution to this problem is posted, as follows:
 """
 
 
@@ -49,8 +53,8 @@ class Solution:
 
 def main():
     from practice.util.driver import Driver
-    drv = Driver(Solution, 'twoSum')
-    drv.run(
+    driver = Driver(Solution, 'twoSum')
+    driver.run(
         nums=[2, 7, 11, 15],
         target=9, )
 
