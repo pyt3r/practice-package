@@ -75,6 +75,6 @@ clean:
 	rm -rf channeldata.json index.html noarch osx-64 linux-32 linux-64 win-32 win-64 icons
 	find . -name "__pycache__" | xargs  rm -rf
 	find . -name "*.pyc" | xargs rm -rf
-	rm -rf docs/build/ docs/source/leet
+	rm -rf docs/build/ docs/source/leet docs/source/probability
 
 .PHONY: test-env remove-test-env rtd-env _pip-env add-packages pep8 lint test conda-package test-package docs-html docs-pdf docs-latex git-merge git-rebase clean
