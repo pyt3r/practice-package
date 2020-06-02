@@ -17,7 +17,7 @@ Problem:
     (b) How small if the number of black socks is even?
 
 Solution:
-  1. Let's define the probability of drawing red after 1 draw as
+  1. Let's define the probability of drawing red after the first draw as
 
       .. math:: P(red_1) = \\frac{N_{red}}{N_{total}},
 
@@ -50,17 +50,22 @@ Solution:
 
         \\binom{n}{k} = \\frac{n(n-1) ... (n-k+1)}{k(k-1) ... 1},
 
-      the probability of drawing 2 consecutive reds may be generalized as,
+      the probability of drawing 2 consecutive reds may be represented as
 
       .. math::
 
         P(red_2|red_1) = \\frac{\\binom{N_{red}}{2}}{\\binom{N_{Total}}{2}},
 
-      and ultimately,
+      or more generally, the probability of drawing X consecutive reds is
 
       .. math::
 
-        = \\frac{\\binom{N_{red}}{2}}{\\binom{N_{red} + N_{black}}{2}}
+        P(red_X|red_{(X-1)...1}) = \\frac{\\binom{N_{red}}{X}}
+                                       {\\binom{N_{Total}}{X}},
+
+      .. math::
+
+        = \\frac{\\binom{N_{red}}{X}}{\\binom{N_{red} + N_{black}}{X}}
 
   In Code:
 
@@ -70,38 +75,65 @@ import numpy
 from scipy.special import comb
 
 
+def prob(n_red, n_black, x):
+    """ the probability of drawing X consecutive reds """
+    n_total = n_red + n_black
+    pr = comb(n_red, x)
+    pr /= comb(n_total, x)
+    return pr
+
+
+def createCombos(n_combos: int, names: list) -> dict:
+    """ utility for creating combos of integers """
+    n = len(names)
+    range_ = range(1, n_combos + 1)
+    mesh = numpy.meshgrid(*(n * [range_]))
+    combos = numpy.array(mesh).reshape(n, -1)
+    return dict(zip(names, combos))
+
+
 class Solution:
 
     @staticmethod
-    def a(n_red: numpy.array,
-          n_black: numpy.array,
-          n_draws: int) -> numpy.array:
-        n_total = n_red + n_black
-        pr = comb(n_red, n_draws)
-        pr /= comb(n_total, n_draws)
-        return pr
+    def a(target_pr):
+        """(a) How small can the number of socks in the drawer be?"""
+
+        combos = createCombos(
+            n_combos=5,
+            names=['n_red', 'n_black'], )
+
+        DF = pandas.DataFrame(combos)
+        pr = prob(**DF, x=2)
+
+        isSolution = (pr == target_pr)
+
+        return DF[isSolution]
+
+    @staticmethod
+    def b(target_pr):
+        """(b) How small if the number of black socks is even?"""
+
+        combos = createCombos(
+            n_combos=30,
+            names=['n_red', 'n_black'], )
+
+        DF = pandas.DataFrame(combos)
+        pr = prob(**DF, x=2)
+
+        isSolution = (pr == target_pr)
+        blackIsEven = DF['n_black'] % 2 == 0
+
+        return DF[isSolution & blackIsEven]
 # %%
-
-
-def createRedBlackCombos(n_combos: int) -> dict:
-    range_ = range(1, n_combos + 1)
-    meshgrid = numpy.meshgrid(range_, range_)
-    combos = numpy.array(meshgrid).reshape(2, -1)
-    return dict(zip(['n_red', 'n_black'], combos))
 
 
 def main():
     from practice.util.driver import Driver
 
-    n_combos = 5
-    kwargs = createRedBlackCombos(n_combos)
+    target_pr = 1 / 2
 
-    driver = Driver(Solution, 'a')
-    result = driver.run(**kwargs, n_draws=2)
-
-    Result = pandas.DataFrame(kwargs)
-    print("\n\n >> And the answer is...\n")
-    print(Result[result == 0.5])
+    for question in ['a', 'b']:
+        Driver(Solution, question).run(target_pr=target_pr)
 
 
 if __name__ == '__main__':
