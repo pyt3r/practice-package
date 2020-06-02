@@ -43,7 +43,8 @@ Solution:
 
   3. Using the `binomial coefficient (combination)`_ equation,
 
-.. _binomial coefficient (combination): https://en.wikipedia.org/wiki/Combination
+.. _binomial coefficient (combination):
+    https://en.wikipedia.org/wiki/Combination
 
       .. math::
 
@@ -57,21 +58,51 @@ Solution:
 
       and ultimately,
 
+      .. math::
+
         = \\frac{\\binom{N_{red}}{2}}{\\binom{N_{red} + N_{black}}{2}}
 
   In Code:
 
-
 """
+import pandas
+import numpy
+from scipy.special import comb
 
 
 class Solution:
 
     @staticmethod
-    def a(n_red: int, n_black: int, n_draws: int) -> float:
-        from itertools import combinations
+    def a(n_red: numpy.array,
+          n_black: numpy.array,
+          n_draws: int) -> numpy.array:
         n_total = n_red + n_black
-        pr = combinations(n_red, n_draws)
-        pr /= combinations(n_total, n_draws)
+        pr = comb(n_red, n_draws)
+        pr /= comb(n_total, n_draws)
         return pr
 # %%
+
+
+def createRedBlackCombos(n_combos: int) -> dict:
+    range_ = range(1, n_combos + 1)
+    meshgrid = numpy.meshgrid(range_, range_)
+    combos = numpy.array(meshgrid).reshape(2, -1)
+    return dict(zip(['n_red', 'n_black'], combos))
+
+
+def main():
+    from practice.util.driver import Driver
+
+    n_combos = 5
+    kwargs = createRedBlackCombos(n_combos)
+
+    driver = Driver(Solution, 'a')
+    result = driver.run(**kwargs, n_draws=2)
+
+    Result = pandas.DataFrame(kwargs)
+    print("\n\n >> And the answer is...\n")
+    print(Result[result == 0.5])
+
+
+if __name__ == '__main__':
+    main()
