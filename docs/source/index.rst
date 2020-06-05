@@ -10,3 +10,4 @@ This is the documentation page for the practice-package.
    getting_started
    leet/index
    probability/index
+   patterns/index

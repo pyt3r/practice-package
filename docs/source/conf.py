@@ -69,7 +69,7 @@ html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
 
-gallery_dirs = ['leet', 'probability']
+gallery_dirs = ['leet', 'probability', 'patterns']
 examples_dirs = [os.path.join('..', '..', 'practice', d) for d in gallery_dirs]
 
 # sphinx-gallery configuration
