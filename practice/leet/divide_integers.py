@@ -4,11 +4,15 @@ Divide Two Integers
 
 https://leetcode.com/problems/divide-two-integers/
   Description:
-    Given two integers dividend and divisor, divide two integers without using multiplication, division and mod operator.
+    Given two integers dividend and divisor,
+    divide two integers without using multiplication,
+    division and mod operator.
 
     Return the quotient after dividing dividend by divisor.
 
-    The integer division should truncate toward zero, which means losing its fractional part. For example, truncate(8.345) = 8 and truncate(-2.7335) = -2.
+    The integer division should truncate toward zero,
+    which means losing its fractional part.
+    For example, truncate(8.345) = 8 and truncate(-2.7335) = -2.
 
   Example 1:
     Input:
@@ -45,7 +49,26 @@ class Solution:
 
     @staticmethod
     def divide(dividend: int, divisor: int) -> int:
-        pass
+
+        dividendNeg = dividend < 0
+        divisorNeg = divisor < 0
+        sign = -1 if dividendNeg ^ divisorNeg else 1
+
+        dividend = abs(dividend)
+        divisor = abs(divisor)
+
+        quotient = 0
+        acc = 0
+        for i in range(31, -1, -1):
+            """ guess == divisor*(2**i) """
+            guess = divisor << i
+
+            if acc + guess <= dividend:
+                """ set the quotient bit, accumulate the guesses """
+                quotient |= 1 << i
+                acc += guess
+
+        return min(max(-2**31, sign*quotient), 2**31-1)
 # %%
 
 
@@ -53,12 +76,22 @@ def main():
     from practice.util.driver import Driver
     driver = Driver(Solution, 'divide')
 
-    numbers = [
-        (10, 3),
-        (7, 3), ]
+    testCases = [
+        ((10, 3), int(10/3)),
+        ((7, -3), int(7/-3)),
+        ((2, 2), int(2/2)),
+        ((-50, 3), int(-50/3)), ]
 
-    for dividend, divisor in numbers:
-        driver.run(dividend=dividend, divisor=divisor)
+    err = []
+    for args, expected in testCases:
+        test = driver.run(dividend=args[0], divisor=args[1])
+        if test != expected:
+            err.append((args, expected, test))
+
+    if err:
+        print("\n\n\n----Errors:")
+        for args, expected, test in err:
+            print(args, expected, test)
 
 
 if __name__ == '__main__':
