@@ -52,7 +52,8 @@ class Solution:
 
 
 def main():
-    from practice.util.driver import Driver
+    from practice.util import DriverFactory
+    Driver = DriverFactory('basic')
     driver = Driver(Solution, 'twoSum')
     driver.run(
         nums=[2, 7, 11, 15],

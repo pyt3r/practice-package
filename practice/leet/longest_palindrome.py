@@ -81,7 +81,8 @@ def make_helper(s, length):
 
 
 def main():
-    from practice.util.driver import Driver
+    from practice.util import DriverFactory
+    Driver = DriverFactory('basic')
     driver = Driver(Solution, 'longestPalindrome')
 
     strings = [
