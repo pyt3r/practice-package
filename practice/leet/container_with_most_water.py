@@ -44,7 +44,8 @@ class Solution:
 
 
 def main():
-    from practice.util.driver import Driver
+    from practice.util import DriverFactory
+    Driver = DriverFactory('basic')
     driver = Driver(Solution, 'maxArea')
 
     driver.run(height=[1, 8, 6, 2, 5, 4, 8, 3, 7])
