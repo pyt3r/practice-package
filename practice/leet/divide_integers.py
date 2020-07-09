@@ -68,7 +68,7 @@ class Solution:
                 quotient |= 1 << i
                 acc += guess
 
-        return min(max(-2**31, sign*quotient), 2**31-1)
+        return min(max(-2**31, sign * quotient), 2**31 - 1)
 # %%
 
 
@@ -78,10 +78,10 @@ def main():
     driver = Driver(Solution, 'divide')
 
     testCases = [
-        ((10, 3), int(10/3)),
-        ((7, -3), int(7/-3)),
-        ((2, 2), int(2/2)),
-        ((-50, 3), int(-50/3)), ]
+        ((10, 3), int(10 / 3)),
+        ((7, -3), int(7 / -3)),
+        ((2, 2), int(2 / 2)),
+        ((-50, 3), int(-50 / 3)), ]
 
     err = []
     for args, expected in testCases:
