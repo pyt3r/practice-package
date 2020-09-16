@@ -48,10 +48,10 @@ class Solution:
 
 
 def to_int(num):
-    j = len(num)-1
+    j = len(num) - 1
     acc, i = 0, 0
     while j >= 0:
-        acc += int(num[j]) * int("1"+"0"*i)
+        acc += int(num[j]) * int("1" + "0" * i)
         j -= 1
         i += 1
     return acc
