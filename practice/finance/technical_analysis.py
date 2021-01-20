@@ -1,3 +1,6 @@
+from numpy import sign
+
+
 def simpleMA(metric, window):
     return metric.rolling(window).mean()
 
@@ -35,7 +38,13 @@ def boll(metric, window, stdevs):
 
 
 def crossover(s1, s2, lag):
-    from numpy import sign
     x = s1 - s2
     x = x*0 + sign(x)
     return x.shift(lag)
+
+
+def stochOscillator(metric, window):
+    low = metric.rolling(window).min()
+    high = metric.rolling(window).max()
+    tmp = metric - low
+    return tmp / high - low
