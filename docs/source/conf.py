@@ -20,7 +20,6 @@ here = os.path.abspath(os.path.dirname(__file__))
 sys.path.insert(0, os.path.join(here, '..', '..'))
 meta = yaml.load(open(os.path.join(here, '..', '..', 'conda-recipe', 'meta.yaml'), 'rb'))
 
-
 # -- Master document --------------------------------------------------------------
 master_doc = 'index'
 
@@ -28,7 +27,7 @@ master_doc = 'index'
 # -- Project information -----------------------------------------------------
 author = meta['about']['author']
 project = meta['package']['name']
-copyright = f'2020, {author}'
+copyright = f'2020-2021, {author}'
 release = str(meta['package']['version'])
 
 
@@ -44,6 +43,7 @@ extensions = [
     'sphinx.ext.napoleon',
     #'sphinx.ext.intersphinx',
     'rst2pdf.pdfbuilder',
+    'jupyter_sphinx',
 ]
 
 # Add any paths that contain templates here, relative to this directory.

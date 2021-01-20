@@ -1,10 +1,8 @@
 package_data:
-  template:
+  practice:
     data:
-      - data.py
-      - data.txt
-      - '*.yml'
+      - '*'
 unpackage_data:
-  template:
+  practice:
     data:
-      - data.yaml
+      - blah.yaml
