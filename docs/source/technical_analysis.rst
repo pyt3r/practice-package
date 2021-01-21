@@ -21,16 +21,16 @@ examples presented on this page:
 
         import pandas
 
-        path = '../practice/data/jpm.csv.gz'
+        path = '../practice/data/data.csv.gz'
         DF = pandas.read_csv(path, compression='gzip')
         ix = pandas.to_datetime(DF.pop('date'))
         DF = DF.set_index(ix)
 
-        price = DF['price']
-        print(price.head())
+        price = DF['close']
+        print(DF.head())
 
 
-    .. image:: ../../images/finance/Data.png
+    .. image:: ../../images/finance/DataOhlc.png
        :align: center
 
 
@@ -57,7 +57,7 @@ a result, depicts a trenline which reacts quicker to the recent price
 movements.
 
 While there are several hyperparameters for adjusting the weights,
-the EMA function used in the examples to come takes a simple form:
+the EMA function used on this page takes a simple form:
 
     .. literalinclude:: ../../practice/finance/technical_analysis.py
        :pyobject: expMA
@@ -233,15 +233,92 @@ to help identify oversold and overbought signals.
 Stochastic
 **********
 
+    .. jupyter-execute::
+
+        stoch_window = 14
+        sma_window = 3
+
+        stoch = ta.stochOscillator(price, stoch_window)
+        sma   = ta.simpleMA(stoch, sma_window)
+
+        StochOscillator = pandas.DataFrame({
+            'price' : price,
+            f'stoch({stoch_window})': stoch,
+            f'sma({sma_window})': sma, })
+
+        print(StochOscillator.tail())
+
+
+    .. image:: ../../images/finance/StochasticOscillator.png
+       :align: center
 
 ROC
 **********
+
+Rate of Change
+
+    .. jupyter-execute::
+
+        short_n = 10
+        medium_n = 50
+        long_n = 100
+
+        RocOscillator = pandas.DataFrame({
+            'price' : price,
+            f'roc({short_n})' : ta.rocOscillator(price, short_n),
+            f'roc({medium_n})': ta.rocOscillator(price, medium_n),
+            f'roc({long_n})'  : ta.rocOscillator(price, long_n), })
+
+        print(RocOscillator.tail())
+
+
+    .. image:: ../../images/finance/RocOscillator.png
+       :align: center
+
 
 
 RSI
 **********
 
+Relative Strength Index
+
+    .. jupyter-execute::
+
+        window = 14
+
+        Rsi = pandas.DataFrame({
+            f'rsiSma({window})' : ta.rsiSma(price, window),
+            f'rsiEma({window})' : ta.rsiEma(price, window), })
+
+        print(Rsi.tail())
+
+
+    .. image:: ../../images/finance/RsiOscillator.png
+       :align: center
+
 
 MFI
 **********
 
+Money Flow Index
+
+    .. jupyter-execute::
+
+        window = 14
+
+        high   = DF['high']
+        low    = DF['low']
+        close  = DF['close']
+        volume = DF['volume']
+
+        Mfi = pandas.DataFrame({
+            'close'          : close,
+            'typical_price'  : ta.typicalPrice(high, low, close),
+            'money_flow'     : ta.rawMoneyFlow(high, low, close, volume),
+            f'mfi({window})' : ta.mfi(high, low, close, volume, window), })
+
+        print(Mfi.tail())
+
+
+    .. image:: ../../images/finance/MfiOscillator.png
+       :align: center
