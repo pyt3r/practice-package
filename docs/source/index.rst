@@ -8,6 +8,7 @@ This is the documentation page for the practice-package.
    :caption: Contents:
 
    getting_started
-   leet/index
+   technical_analysis
    probability/index
+   leet/index
    patterns/index
