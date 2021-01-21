@@ -39,7 +39,7 @@ def boll(metric, window, stdevs):
 
 def crossover(s1, s2, lag):
     x = s1 - s2
-    x = x*0 + sign(x)
+    x = x * 0 + sign(x)
     return x.shift(lag)
 
 
@@ -98,7 +98,7 @@ def mfiRatio(high, low, close, volume, window):
     mf_positive = mf * isPositive
     mf_negative = mf * isNegative
 
-    ratio  = mf_positive.rolling(window).sum()
+    ratio = mf_positive.rolling(window).sum()
     ratio /= mf_negative.rolling(window).sum()
     return ratio
 
