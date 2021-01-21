@@ -30,7 +30,7 @@ examples presented on this page:
         print(price.head())
 
 
-    .. image:: ../../images/finance/jpm_data.png
+    .. image:: ../../images/finance/Data.png
        :align: center
 
 
@@ -77,7 +77,7 @@ and plot:
 
         print(MA.tail())
 
-    .. image:: ../../images/finance/moving_average.png
+    .. image:: ../../images/finance/MovingAverage.png
        :align: center
 
 
@@ -116,7 +116,7 @@ period.
 
         print(Crossover.tail())
 
-    .. image:: ../../images/finance/crossover.png
+    .. image:: ../../images/finance/Crossover.png
        :align: center
 
 
@@ -156,7 +156,7 @@ deviations.
         print(Bollinger.tail())
 
 
-    .. image:: ../../images/finance/bollinger.png
+    .. image:: ../../images/finance/Bollinger.png
        :align: center
 
 
@@ -208,14 +208,14 @@ This system is exemplified in the following snippet and plot:
         print(Macd.tail())
 
 
-    .. image:: ../../images/finance/macd.png
+    .. image:: ../../images/finance/Macd.png
        :align: center
 
 
 The dependency tree of the aforementioned MACD system is depicted in
 the following exhibit:
 
-    .. image:: ../../images/finance/macd_dep_tree.png
+    .. image:: ../../images/finance/Macd_dep_tree.png
        :scale: 55 %
        :align: center
 
