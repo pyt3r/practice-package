@@ -19,9 +19,14 @@ examples presented on this page:
 
     .. jupyter-execute::
 
+        import os
         import pandas
+        import practice
 
-        path = '../practice/data/data.csv.gz'
+        basedir = os.path.dirname(practice.__file__)
+        subpath = 'data/data.csv.gz'
+        path = os.path.join(*[basedir]+subpath.split('/'))
+
         DF = pandas.read_csv(path, compression='gzip')
         ix = pandas.to_datetime(DF.pop('date'))
         DF = DF.set_index(ix)
