@@ -9,6 +9,7 @@ dependencies:
   - sphinx
   - sphinx_rtd_theme
   - sphinx-gallery
+  - jupyter_sphinx
   - pip:
       - rst2pdf
   # gallery dependencies:
