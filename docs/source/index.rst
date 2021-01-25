@@ -9,6 +9,7 @@ This is the documentation page for the practice-package.
 
    getting_started
    technical_analysis
+   bond
    probability/index
    leet/index
    patterns/index
