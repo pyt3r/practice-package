@@ -1,8 +1,9 @@
 import pandas
 import numpy
+from scipy import optimize
 
 
-def evalCoupon(ytm, pppy, y, face, coupon_rate):
+def evalCouponBond(ytm, freq, T, face, coupon):
     """
     Parameters
     ----------
@@ -11,81 +12,63 @@ def evalCoupon(ytm, pppy, y, face, coupon_rate):
       the expected rate of return if every coupon payment was
       invested at a fixed interest rate until the bond matures
 
-    pppy: number
+    freq: number
       number of payment time per year, i.e. semi-annual -> 2
 
-    y: number
+    T: number
       time to maturity, in years
 
     face: number
       face value / amt to be paid in full by maturity
 
-    coupon_rate: number
+    coupon: number
       annual coupon rate
 
     Returns
     -------
-    valulation : number
+    valuation : number
       The valuation of a coupon bond
     """
-    fval = calcFaceValue(ytm, pppy, y, face)
-    coup = calcCoupons(ytm, pppy, y, face, coupon_rate)
+    fval = calcFaceValue(ytm, freq, T, face)
+    coup = calcCoupons(ytm, freq, T, face, coupon)
     cash = fval + coup
+
     return cash.sum()
 
 
-def evalZeroCoupon(ytm, pppy, y, face):
-    """
-    Parameters
-    ----------
-    ytm: number
-      yield to maturity / annual discount rate;
-      the expected rate of return if every coupon payment was
-      invested at a fixed interest rate until the bond matures
-
-    pppy: number
-      number of payment time per year, i.e. semi-annual -> 2
-
-    y: number
-      time to maturity, in years
-
-    face: number
-      face value / amt to be paid in full by maturity
-
-    Returns
-    -------
-    valuation : number
-      The valuation of a zero-coupon bond
-    """
-    cash = calcFaceValue(ytm, pppy, y, face)
+def evalZeroCouponBond(ytm, freq, T, face):
+    cash = calcFaceValue(ytm, freq, T, face)
     return cash.sum()
 
 
-def calcCoupons(ytm, pppy, y, face, coupon_rate):
+def calcCoupons(ytm, freq, T, face, coupon):
     """ present value of coupon payments """
-    pptm = calcPptm(pppy, y)
-    crpp = calcCrpp(coupon_rate, pppy)
+    pptm = calcPptm(freq, T)
+    crpp = calcCrpp(coupon, freq)
     cppp = calcCppp(crpp, face)
     time = getPeriods(pptm)
-    return presentValue(ytm, time, cppp)
+    return presentValue(ytm, freq, time, cppp)
 
 
-def calcFaceValue(ytm, pppy, y, face):
+def calcFaceValue(ytm, freq, T, face):
     """ present value of final zero coupon payment """
-    pptm = calcPptm(pppy, y)
+    pptm = calcPptm(freq, T)
     time = getPeriods(pptm)
     inScope = (time == time.max())
-    return inScope * presentValue(ytm, time, face)
+    return inScope * presentValue(ytm, freq, time, face)
 
 
 def getPeriods(pptm):
-    time = numpy.ones(pptm).cumsum()
+    pptm_int = int(pptm)
+    if pptm_int != pptm:
+        raise TypeError(pptm, pptm_int)
+    time = numpy.ones(pptm_int).cumsum()
     return pandas.Series(time, index=time)
 
 
-def calcCrpp(coupon_rate, pppy):
+def calcCrpp(coupon, freq):
     """ coupon rate per period """
-    return coupon_rate / pppy
+    return coupon / freq
 
 
 def calcCppp(crpp, face):
@@ -93,12 +76,12 @@ def calcCppp(crpp, face):
     return crpp * face
 
 
-def calcPptm(pppy, y):
+def calcPptm(freq, T):
     """ payment time to maturity """
-    return pppy * y
+    return freq * T
 
 
-def presentValue(rate, pptm, value):
+def presentValue(rate, freq, pptm, value):
     """
     Parameters
     ----------
@@ -106,6 +89,9 @@ def presentValue(rate, pptm, value):
       discount rate;
       the expected rate of return if every coupon payment was
       invested at a fixed interest rate until the bond matures
+
+    freq:
+      frequency
 
     pptm:
       payment time to maturity
@@ -117,11 +103,11 @@ def presentValue(rate, pptm, value):
     -------
     present_value
     """
-    tmp = (1 + rate) ** pptm
+    tmp = (1 + rate / freq) ** pptm
     return value / tmp
 
 
-def calcDuration(ytm, pppy, y, face, coupon_rate):
+def calcDuration(ytm, freq, T, face, coupon):
     """
     source: https://www.investopedia.com/terms/m/macaulayduration.asp
 
@@ -153,16 +139,16 @@ def calcDuration(ytm, pppy, y, face, coupon_rate):
       the expected rate of return if every coupon payment was
       invested at a fixed interest rate until the bond matures
 
-    k: number
+    freq: number
       compounding periods per year, i.e. semi-annual -> 2
 
-    y: number
+    T: number
       time to maturity, in years
 
     face: number
       face value / amt to be paid in full by maturity
 
-    coupon_rate: number
+    coupon: number
       annual coupon rate
 
     Returns
@@ -171,19 +157,34 @@ def calcDuration(ytm, pppy, y, face, coupon_rate):
       The duration of a bond, in years
     """
 
-    ytm_pp = ytm / pppy
-
-    pptm = calcPptm(pppy, y)
+    pptm = calcPptm(freq, T)
     time = getPeriods(pptm)
 
-    fval = calcFaceValue(ytm_pp, pppy, y, face)
-    coup = calcCoupons(ytm_pp, pppy, y, face, coupon_rate)
+    fval = calcFaceValue(ytm, freq, T, face)
+    coup = calcCoupons(ytm, freq, T, face, coupon)
     cash = coup + fval
 
     tmp = (time * cash).sum() / cash.sum()
-    return tmp / pppy
+    return tmp / freq
 
 
-def calcModDuration(duration, pppy, ytm):
-    tmp = 1 + (ytm / pppy)
+def calcModDuration(duration, freq, ytm):
+    tmp = 1 + (ytm / freq)
     return duration / tmp
+
+
+def calcYtm(price, face, T, coupon, freq, guess=0.05):
+    """ Calculates the approximate YTM """
+    fun = lambda y: evalCouponBond(y, freq, T, face, coupon) - price
+    return optimize.newton(fun, guess)
+
+
+def calcConvexity(price, face, T, coupon, freq, dy):
+    """ Calculates the approximate convexity """
+    ytm = calcYtm(price, face, T, coupon, freq)
+    upper = evalCouponBond(ytm + dy, freq, T, face, coupon)
+    lower = evalCouponBond(ytm - dy, freq, T, face, coupon)
+
+    c = upper + lower - 2 * price
+    c /= price * dy ** 2
+    return c

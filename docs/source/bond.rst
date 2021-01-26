@@ -26,12 +26,19 @@ leveraged from the following sources:
 Present Valuation
 ------------------
 
-The following functions are used to assist in the
-present valuation of a bond:
+The following function is used to calculate the present value
+of a bond:
+
+    .. autofunction:: practice.finance.bond.evalCouponBond
+
+
+To help demonstrate the concept of present valuation, the following
+helper functions are used in the example below:
 
     .. autofunction:: practice.finance.bond.calcCoupons
 
     .. autofunction:: practice.finance.bond.calcFaceValue
+
 
 Example
 ********
@@ -40,31 +47,40 @@ Example
 
         import pandas
 
-        ytm = 0.03
-        pppy = 2
-        y = 2
-        face = 1000
-        coupon_rate = 0.05
+        ytm = 0.06
+        freq = 2
+        T = 2
+        face = 100
+        coupon = 0.05
 
-        coup = bond.calcCoupons(ytm, pppy, y, face, coupon_rate)
-        fval = bond.calcFaceValue(ytm, pppy, y, face)
+        coup = bond.calcCoupons(ytm, freq, T, face, coupon)
+        fval = bond.calcFaceValue(ytm, freq, T, face)
 
         PresentValues = pandas.DataFrame({
             f'coup({ytm},{face})' : coup,
             f'face({ytm},{face})' : fval, })
 
-        total_coup = bond.evalCoupon(ytm, pppy, y, face, coupon_rate)
-        total_zero = bond.evalZeroCoupon(ytm, pppy, y, face)
+        total_coup = bond.evalCouponBond(ytm, freq, T, face, coupon)
+        total_zero = bond.evalZeroCouponBond(ytm, freq, T, face)
 
         assert total_zero == fval.sum()
         assert total_coup == (fval + coup).sum()
 
+        price = PresentValues.sum().sum()
         print(PresentValues)
-        print(f"\nThe present value of the bond is: {PresentValues.sum().sum()}")
-
+        print(f"\nThe present value of the bond is:${price:.2f}""")
 
     .. image:: ../../images/finance/BondPresentValues.png
        :align: center
+
+To back out the yield, given the price, the following
+function may be invoked:
+
+    .. jupyter-execute::
+
+        approxYtm = bond.calcYtm(price, face, T, coupon, freq)
+        print(f"The approximate ytm is: {approxYtm*100:.2f}%""")
+
 
 
 Duration
@@ -74,57 +90,26 @@ Duration may be thought of as the weighted average number of years
 an investor must maintain a position in a bond until the present
 value of the bond's cash flows equals the amount paid for the bond.
 
-
-Compounding Example
-*******************
-Assuming a $1,000 face value bond that pays a 6% coupon and matures
-in 3 years with an interest rates of 6% per year with semi-annual
-compounding, the duration would be calculated as follows:
+As an example, the duration for a $1,000 face value bond that pays
+a 6% coupon and matures in 3 years with an interest rate of 6% per
+year, compounded semi-annually would be calculated as follows:
 
     .. jupyter-execute::
 
-        ytm = 0.06
-        pppy = 2
-        y = 3
-        face = 100
-        coupon_rate = 0.06
-
-        d = bond.calcDuration(ytm, pppy, y, face, coupon_rate)
-
-        print(f"""
-            The duration is {d:.2f} years,
-            which is less than the time to maturity
-            of {y} years.
-            In other words, it takes {d:.2f} years to
-            recoup the true cost of the bond. """)
+        d = bond.calcDuration(ytm, freq, T, face, coupon)
+        print(f"It takes {d:.2f} years to recoup the cost of the bond.")
 
 
 Modified Duration
 *******************
 
-Assuming a three-year bond with a face value of $100 that
-pays a 10% coupon semi-annually and has a yield to maturity
-of 6%, the duration and modified duration may be calculated
-as follows:
-
     .. jupyter-execute::
 
-        pppy = 2
-        ytm = 0.06
-        y = 3
-        face = 100
-        coupon_rate = 0.10
-
-        d = bond.calcDuration(ytm, pppy, y, face, coupon_rate)
-        mod_d = bond.calcModDuration(d, pppy, ytm)
+        mod_d = bond.calcModDuration(d, freq, ytm)
 
         print(f"""
-            In this case, if, say, interest rates were to rise and ultimately
-            increase the YTM from {ytm*100}% to {ytm*100+1}%, then the bond's
-            value should fall by {mod_d:.2f}%.\n
-            Similarly, if the YTM were to fall from {ytm*100}% to {ytm*100-1}%,
-            then the bond's price should rise by {mod_d:.2f}%.""")
-
+          The modified duration is {mod_d:.2f}, which implies that
+          a 1% change in yield leads to a {mod_d:.2f}% in price.""")
 
 
 Convexity
@@ -138,4 +123,17 @@ response to a 1% rate change, convexity calculates the
 acceleration of this price change in response to
 the corresponding rate change.
 
+When a bond has a higher convexity than another bond, with
+all else being equal, then the former will always have
+a higher price than the latter as interest rates rise or fall.
 
+    .. jupyter-execute::
+
+        dy = 0.01
+
+        c = bond.calcConvexity(price, face, T, coupon, freq, dy)
+
+        print(f"""
+          The convexity is {c:.2f}, which implies that
+          A {dy*100:.2f}% change in yield leads to a modified
+          duration change of {c*dy*100:.2f}.""")
