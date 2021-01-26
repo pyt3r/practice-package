@@ -101,7 +101,10 @@ year, compounded semi-annually would be calculated as follows:
 
 
 Modified Duration
-*******************
+------------------
+
+The modified duration is the first derivative of price with respect
+to yield.
 
     .. jupyter-execute::
 
@@ -120,12 +123,9 @@ sensitivity of the duration of a bond as yields change.
 
 While the modified duration calculates a bond's price change in
 response to a 1% rate change, convexity calculates the
-acceleration of this price change in response to
-the corresponding rate change.
-
-When a bond has a higher convexity than another bond, with
-all else being equal, then the former will always have
-a higher price than the latter as interest rates rise or fall.
+acceleration of this price change in response to the corresponding
+rate change, and is in effect, the derivative of the modified
+duration.
 
     .. jupyter-execute::
 
@@ -137,3 +137,9 @@ a higher price than the latter as interest rates rise or fall.
           The convexity is {c:.2f}, which implies that
           A {dy*100:.2f}% change in yield leads to a modified
           duration change of {c*dy*100:.2f}.""")
+
+
+When working with portfolio of bonds, it is sometimes easier
+to calculate the duration and convexity of the portfolio,
+and then estimate the price change and risk at the portfolio-level
+in lieu of doing so for each bond in the portfolio.
