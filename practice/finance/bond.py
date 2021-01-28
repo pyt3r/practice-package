@@ -182,3 +182,28 @@ def calcConvexity(price, face, T, coupon, freq, dy):
 def calcPriceChange(price, mod_d, c, dy):
     tmp = 1/2 * price * c * dy**2
     return tmp - (price * mod_d * dy)
+
+
+def calcDurationSensitivity(ytm, freq, T, face, coupon, rate_range):
+    price = evalCouponBond(ytm, freq, T, face, coupon)
+    d = calcDuration(ytm, freq, T, face, coupon)
+    mod_d = calcModDuration(d, freq, ytm)
+    dy_vector = getDyVector(rate_range)
+    changes = dy_vector * mod_d * price
+    return pandas.Series(price - changes, index=dy_vector + ytm)
+
+
+def calcConvexitySensitivity(ytm, freq, T, face, coupon, dy, rate_range):
+    price = evalCouponBond(ytm, freq, T, face, coupon)
+    d = calcDuration(ytm, freq, T, face, coupon)
+    mod_d = calcModDuration(d, freq, ytm)
+    c = calcConvexity(price, face, T, coupon, freq, dy)
+    dy_vector = getDyVector(rate_range)
+    changes = calcPriceChange(price, mod_d, c, dy_vector)
+    return pandas.Series(changes + price, index=dy_vector + ytm)
+
+
+def getDyVector(rate_range, multiplier=100):
+    rate_range = int(rate_range * multiplier)
+    vector = numpy.ones(rate_range * 2 + 1).cumsum() - (rate_range + 1)
+    return vector / multiplier
