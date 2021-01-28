@@ -88,12 +88,14 @@ Duration
 Duration may be thought of as the weighted average number of years
 an investor must maintain a position in a bond until the present
 value of the bond's cash flows equals the amount paid for the bond.
+At a glance, the figure represents a bond's interest rate risk.
 The duration of a zero-coupon bond, for example, is equal to the
 bond's time to maturity.
 
 The Modified Duration is the first derivative of price with respect
 to yield; in essence, the linear estimate of the bond's percent change
-in price per percent change in interest rate.
+in price per percent change in interest rate.  It can be computed
+as a function of Duration:
 
     .. jupyter-execute::
 
@@ -117,23 +119,36 @@ Convexity
 Convexity builds on the concept of duration by measuring the
 sensitivity of a bond's duration as interest rates change.
 
-While the modified duration calculates a bond's price change in
+While the Modified Duration calculates a bond's price change in
 response to a 1% rate change, convexity calculates the acceleration
-of this price change in response to the corresponding rate change;
-in short, convexity is the first derivative of the modified duration
-(or the second derivative of the price with respect to yield).
+of this price change in response to the corresponding rate change.
+
+In short, Convexity is the first derivative of the modified duration
+(or the second derivative of the price with respect to yield) and
+may also be used to estimate price changes:
 
     .. jupyter-execute::
 
         dy = 0.01
 
         c = bond.calcConvexity(price, face, T, coupon, freq, dy)
+        change_inc = bond.calcPriceChange(price, mod_d, c, dy)
+        change_dec = bond.calcPriceChange(price, mod_d, c, -dy)
 
+        print(f"""
+          The convexity is {c:.2f}, and therefore...
 
+           A 1% increase in rates would lead to a price change of:
+            -${abs(change_inc):.2f}
 
-Note that the Modified Duration is used to linearly estimate, the price,
-whereas Convexity captures the curvature the bond's price exhibits at
-different interest rates:
+           A 1% decrease in rates would lead to a price change of:
+            +${change_dec:.2f}
+        """)
+
+Note that the Modified Duration is used to linearly estimate the price,
+whereas Convexity is used to capture a more accurate estimate, as it takes
+into account the curvature that the bond's price exhibits at different
+interest rates:
 
 
     .. jupyter-execute::
