@@ -3,8 +3,10 @@ import numpy
 from scipy import optimize
 
 
-def evalCouponBond(ytm, freq, T, face, coupon):
+def calcBondPrice(ytm, freq, T, face, coupon):
     """
+    Calculates the price of a Bond
+
     Parameters
     ----------
     ytm: number
@@ -35,13 +37,14 @@ def evalCouponBond(ytm, freq, T, face, coupon):
     return cash.sum()
 
 
-def evalZeroCouponBond(ytm, freq, T, face):
+def calcZeroCouponBondPrice(ytm, freq, T, face):
+    """ Calculates the price of a Zero Coupon Bond """
     cash = calcFaceValues(ytm, freq, T, face)
     return cash.sum()
 
 
 def calcCoupons(ytm, freq, T, face, coupon):
-    """ present value of coupon payments """
+    """ Calculates the present value of coupon payments """
     pptm = calcPptm(freq, T)
     crpp = calcCrpp(coupon, freq)
     cppp = calcCppp(crpp, face)
@@ -50,7 +53,7 @@ def calcCoupons(ytm, freq, T, face, coupon):
 
 
 def calcFaceValues(ytm, freq, T, face):
-    """ present value of final zero coupon payment """
+    """ Calculates the present value of the face value """
     pptm = calcPptm(freq, T)
     time = getPeriods(pptm)
     mask = time == time.max()
@@ -108,10 +111,9 @@ def calcPv(r, freq, periods, value):
 
 def calcDuration(ytm, freq, T, face, coupon):
     """
-    Calculates Macaulay Duration, which is defined as the
-    weighted average term to maturity of the cash flows of a bond.
-    Duration measures how long it takes, in years, for an investor
-    to be repaid the bond’s price by the bond’s total cash flows.
+    Calculates Macaulay Duration, which measures how long it
+    takes, in years, for an investor to be repaid the bond’s
+    price by the bond’s total cash flows.
 
     Parameters
     ----------
@@ -150,29 +152,23 @@ def calcDuration(ytm, freq, T, face, coupon):
 
 
 def calcYtm(price, face, T, coupon, freq, guess=0.05):
-    """ Calculates the approximate YTM """
-    fun = lambda y: evalCouponBond(y, freq, T, face, coupon) - price
+    """ Calculates the Yield to Maturity """
+    fun = lambda y: calcBondPrice(y, freq, T, face, coupon) - price
     return optimize.newton(fun, guess)
 
 
 def calcModDuration(duration, freq, ytm):
-    """
-    Calculates the modified duration:
-    - first derivative of price w.r.t. yield
-    """
+    """ Calculates the Modified Duration """
     tmp = 1 + (ytm / freq)
     return duration / tmp
 
 
 def calcConvexity(price, face, T, coupon, freq, dy):
-    """
-    Calculates the modified duration:
-    - first derivative of the modified duration
-    """
+    """ Calculates the Convexity """
     ytm = calcYtm(price, face, T, coupon, freq)
 
-    inc = evalCouponBond(ytm + dy, freq, T, face, coupon)
-    dec = evalCouponBond(ytm - dy, freq, T, face, coupon)
+    inc = calcBondPrice(ytm + dy, freq, T, face, coupon)
+    dec = calcBondPrice(ytm - dy, freq, T, face, coupon)
 
     c = inc + dec - 2 * price
     c /= price * dy ** 2
@@ -185,7 +181,7 @@ def calcPriceChange(price, mod_d, c, dy):
 
 
 def calcDurationSensitivity(ytm, freq, T, face, coupon, rate_range):
-    price = evalCouponBond(ytm, freq, T, face, coupon)
+    price = calcBondPrice(ytm, freq, T, face, coupon)
     d = calcDuration(ytm, freq, T, face, coupon)
     mod_d = calcModDuration(d, freq, ytm)
     dy_vector = getDyVector(rate_range)
@@ -194,7 +190,7 @@ def calcDurationSensitivity(ytm, freq, T, face, coupon, rate_range):
 
 
 def calcConvexitySensitivity(ytm, freq, T, face, coupon, dy, rate_range):
-    price = evalCouponBond(ytm, freq, T, face, coupon)
+    price = calcBondPrice(ytm, freq, T, face, coupon)
     d = calcDuration(ytm, freq, T, face, coupon)
     mod_d = calcModDuration(d, freq, ytm)
     c = calcConvexity(price, face, T, coupon, freq, dy)

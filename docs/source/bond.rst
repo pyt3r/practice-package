@@ -1,12 +1,12 @@
-Bond Pricing
-=============================
+Bonds
+======
 
 .. toctree::
    :maxdepth: 1
 
 
-The bond pricing tools presented on this page take the form of
-``python`` functions and may be imported as follows:
+The bond tools presented on this page take the form of ``python``
+functions and may be imported as follows:
 
     .. jupyter-execute::
 
@@ -19,7 +19,7 @@ Present Valuation
 The following function is used to calculate the present value
 of a bond:
 
-    .. autofunction:: practice.finance.bond.evalCouponBond
+    .. autofunction:: practice.finance.bond.calcBondPrice
 
 
 To help demonstrate the concept of present valuation, the following
@@ -50,11 +50,9 @@ Example
             f'coup({ytm},{face})' : coup,
             f'face({ytm},{face})' : fval, })
 
-        total_coup = bond.evalCouponBond(ytm, freq, T, face, coupon)
-        total_zero = bond.evalZeroCouponBond(ytm, freq, T, face)
+        bond_price = bond.calcBondPrice(ytm, freq, T, face, coupon)
 
-        assert total_zero == fval.sum()
-        assert total_coup == (fval + coup).sum()
+        assert bond_price == (fval + coup).sum()
 
         price = PresentValues.sum().sum()
         print(f"\nThe present value of the bond is: ${price:.2f}\n""")
@@ -63,7 +61,7 @@ Example
     .. image:: ../../images/finance/BondPresentValues.png
        :align: center
 
-To back out the yield, given the price, the following
+To back out the bond's yield, given the price, the following
 function may be invoked:
 
     .. jupyter-execute::
@@ -79,13 +77,9 @@ Duration may be thought of as the weighted average number of years
 an investor must maintain a position in a bond until the present
 value of the bond's cash flows equals the amount paid for the bond.
 At a glance, the figure represents a bond's interest rate risk.
-The duration of a zero-coupon bond, for example, is equal to the
-bond's time to maturity.
 
-The Modified Duration is the first derivative of price with respect
-to yield; in essence, the linear estimate of the bond's percent change
-in price per percent change in interest rate.  It can be computed
-as a function of Duration:
+The Modified Duration is the first derivative of a bond's price with
+respect to yield and may be computed as a function of Duration:
 
     .. jupyter-execute::
 
@@ -102,6 +96,7 @@ as a function of Duration:
 
           - price of    : {0.01*mod_d*100:.3f}%, or ${0.01*mod_d*price:.3f}
         """)
+
 
 Convexity
 ----------------
