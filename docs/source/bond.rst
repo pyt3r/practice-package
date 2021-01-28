@@ -159,13 +159,3 @@ interest rates:
 
     .. image:: ../../images/finance/BondSensitivity.png
        :align: center
-
-
-When working with a portfolio of bonds, it is sometimes easier
-to calculate the duration and convexity of the portfolio,
-and then estimate the price change and risk at the portfolio-level
-in lieu of doing so for each bond in the portfolio.
-
-    .. jupyter-execute::
-
-        # placeholder
