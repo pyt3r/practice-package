@@ -29,16 +29,15 @@ def evalCouponBond(ytm, freq, T, face, coupon):
     valuation : number
       The valuation of a coupon bond
     """
-    fval = calcFaceValue(ytm, freq, T, face)
+    fval = calcFaceValues(ytm, freq, T, face)
     coup = calcCoupons(ytm, freq, T, face, coupon)
     cash = fval + coup
-
-    return cash.sum()
+    return cash.sum().to_dict()
 
 
 def evalZeroCouponBond(ytm, freq, T, face):
-    cash = calcFaceValue(ytm, freq, T, face)
-    return cash.sum()
+    cash = calcFaceValues(ytm, freq, T, face)
+    return cash.sum().to_dict()
 
 
 def calcCoupons(ytm, freq, T, face, coupon):
@@ -47,15 +46,17 @@ def calcCoupons(ytm, freq, T, face, coupon):
     crpp = calcCrpp(coupon, freq)
     cppp = calcCppp(crpp, face)
     time = getPeriods(pptm)
-    return presentValue(ytm, freq, time, cppp)
+    data = calcPv(ytm, freq, time, cppp)
+    return pandas.DataFrame(data)
 
 
-def calcFaceValue(ytm, freq, T, face):
+def calcFaceValues(ytm, freq, T, face):
     """ present value of final zero coupon payment """
     pptm = calcPptm(freq, T)
     time = getPeriods(pptm)
-    inScope = (time == time.max())
-    return inScope * presentValue(ytm, freq, time, face)
+    mask = time == time.max()
+    data = calcPv(ytm, freq, time, face)
+    return pandas.DataFrame(data).multiply(mask, axis=0)
 
 
 def getPeriods(pptm):
@@ -81,11 +82,11 @@ def calcPptm(freq, T):
     return freq * T
 
 
-def presentValue(rate, freq, pptm, value):
+def calcPv(r, freq, periods, value):
     """
     Parameters
     ----------
-    rate:
+    r:
       discount rate;
       the expected rate of return if every coupon payment was
       invested at a fixed interest rate until the bond matures
@@ -93,8 +94,8 @@ def presentValue(rate, freq, pptm, value):
     freq:
       frequency
 
-    pptm:
-      payment time to maturity
+    periods:
+      periods to maturity
 
     value:
       future value / value at maturity
@@ -103,8 +104,25 @@ def presentValue(rate, freq, pptm, value):
     -------
     present_value
     """
-    tmp = (1 + rate / freq) ** pptm
+    rate = getVectorizedRate(r)
+    pval = _calcPv(rate, freq, periods.values, value)
+
+    results = {}
+    for k, v in zip(rate.flatten(), pval):
+        results[k] = pandas.Series(v, index=periods)
+
+    return results
+
+
+def _calcPv(rate, freq, periods, value):
+    tmp = (1 + rate / freq) ** periods
     return value / tmp
+
+
+def getVectorizedRate(r):
+    if isinstance(r, (float, int)):
+        r = [r]
+    return numpy.array([r]).T
 
 
 def calcDuration(ytm, freq, T, face, coupon):
@@ -160,31 +178,48 @@ def calcDuration(ytm, freq, T, face, coupon):
     pptm = calcPptm(freq, T)
     time = getPeriods(pptm)
 
-    fval = calcFaceValue(ytm, freq, T, face)
-    coup = calcCoupons(ytm, freq, T, face, coupon)
+    fval = calcFaceValues(ytm, freq, T, face)[ytm]
+    coup = calcCoupons(ytm, freq, T, face, coupon)[ytm]
     cash = coup + fval
 
     tmp = (time * cash).sum() / cash.sum()
     return tmp / freq
 
 
+def calcYtm(price, face, T, coupon, freq, guess=0.05):
+    """ Calculates the approximate YTM """
+    fun = lambda y: evalCouponBond(y, freq, T, face, coupon)[y] - price
+    return optimize.newton(fun, guess)
+
+
 def calcModDuration(duration, freq, ytm):
+    """
+    Calculates the modified duration:
+    - first derivative of price w.r.t. yield
+    """
     tmp = 1 + (ytm / freq)
     return duration / tmp
 
 
-def calcYtm(price, face, T, coupon, freq, guess=0.05):
-    """ Calculates the approximate YTM """
-    fun = lambda y: evalCouponBond(y, freq, T, face, coupon) - price
-    return optimize.newton(fun, guess)
-
-
 def calcConvexity(price, face, T, coupon, freq, dy):
-    """ Calculates the approximate convexity """
+    """
+    Calculates the modified duration:
+    - first derivative of the modified duration
+    """
     ytm = calcYtm(price, face, T, coupon, freq)
-    upper = evalCouponBond(ytm + dy, freq, T, face, coupon)
-    lower = evalCouponBond(ytm - dy, freq, T, face, coupon)
 
-    c = upper + lower - 2 * price
+    diffs = [
+        ytm - dy,
+        ytm + dy, ]
+
+    prices = evalCouponBond(diffs, freq, T, face, coupon)
+    high, low = prices.values()
+
+    c = high + low - 2 * price
     c /= price * dy ** 2
     return c
+
+
+def calcPriceChange(price, mod_d, c, dy):
+    tmp = 1/2 * price * c * dy**2
+    return tmp - (price * mod_d * dy)
