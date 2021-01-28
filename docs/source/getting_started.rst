@@ -7,7 +7,7 @@ Get started with the package with these steps:
 
     $ conda install -c pyt3r practice
 
-  `Alternately the repository may be cloned from
-  https://github.com/pyt3r/practice-package`
+  `Alternately the repository may be cloned from:`
+  https://github.com/pyt3r/practice-package
 
 2. Read the docs and try an example!

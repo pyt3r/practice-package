@@ -2,7 +2,7 @@
 Welcome to the practice-package!
 ================================
 
-The practice-package is ongoing project intended to assist one's
+The practice-package is ongoing project intended to assist with one's
 understanding of topics and problems across the domains of software
 development, finance, machine learning, science, and math.
 
