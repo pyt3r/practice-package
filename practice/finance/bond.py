@@ -32,12 +32,12 @@ def evalCouponBond(ytm, freq, T, face, coupon):
     fval = calcFaceValues(ytm, freq, T, face)
     coup = calcCoupons(ytm, freq, T, face, coupon)
     cash = fval + coup
-    return cash.sum().to_dict()
+    return cash.sum()
 
 
 def evalZeroCouponBond(ytm, freq, T, face):
     cash = calcFaceValues(ytm, freq, T, face)
-    return cash.sum().to_dict()
+    return cash.sum()
 
 
 def calcCoupons(ytm, freq, T, face, coupon):
@@ -46,8 +46,7 @@ def calcCoupons(ytm, freq, T, face, coupon):
     crpp = calcCrpp(coupon, freq)
     cppp = calcCppp(crpp, face)
     time = getPeriods(pptm)
-    data = calcPv(ytm, freq, time, cppp)
-    return pandas.DataFrame(data)
+    return calcPv(ytm, freq, time.values, cppp)
 
 
 def calcFaceValues(ytm, freq, T, face):
@@ -55,8 +54,7 @@ def calcFaceValues(ytm, freq, T, face):
     pptm = calcPptm(freq, T)
     time = getPeriods(pptm)
     mask = time == time.max()
-    data = calcPv(ytm, freq, time, face)
-    return pandas.DataFrame(data).multiply(mask, axis=0)
+    return mask * calcPv(ytm, freq, time.values, face)
 
 
 def getPeriods(pptm):
@@ -104,51 +102,16 @@ def calcPv(r, freq, periods, value):
     -------
     present_value
     """
-    rate = getVectorizedRate(r)
-    pval = _calcPv(rate, freq, periods.values, value)
-
-    results = {}
-    for k, v in zip(rate.flatten(), pval):
-        results[k] = pandas.Series(v, index=periods)
-
-    return results
-
-
-def _calcPv(rate, freq, periods, value):
-    tmp = (1 + rate / freq) ** periods
+    tmp = (1 + r / freq) ** periods
     return value / tmp
-
-
-def getVectorizedRate(r):
-    if isinstance(r, (float, int)):
-        r = [r]
-    return numpy.array([r]).T
 
 
 def calcDuration(ytm, freq, T, face, coupon):
     """
-    source: https://www.investopedia.com/terms/m/macaulayduration.asp
-
     Calculates Macaulay Duration, which is defined as the
     weighted average term to maturity of the cash flows of a bond.
     Duration measures how long it takes, in years, for an investor
     to be repaid the bond’s price by the bond’s total cash flows.
-
-    At the same time, duration is a measure of sensitivity of a
-    bond's or fixed income portfolio's price to changes in interest
-    rates.
-
-    In general, the higher the duration, the more a bond's price
-    will drop as interest rates rise (and the greater the interest
-    rate risk). As a general rule, for every 1% change in interest
-    rates (increase or decrease), a bond’s price will change
-    approximately 1% in the opposite direction, for every year of
-    duration.
-
-    If a bond has a duration of five years and interest rates increase
-    1%, the bond’s price will drop by approximately 5% (1% X 5 years).
-    Likewise, if interest rates fall by 1%, the same bond’s price
-    will increase by about 5% (1% X 5 years).
 
     Parameters
     ----------
@@ -178,8 +141,8 @@ def calcDuration(ytm, freq, T, face, coupon):
     pptm = calcPptm(freq, T)
     time = getPeriods(pptm)
 
-    fval = calcFaceValues(ytm, freq, T, face)[ytm]
-    coup = calcCoupons(ytm, freq, T, face, coupon)[ytm]
+    fval = calcFaceValues(ytm, freq, T, face)
+    coup = calcCoupons(ytm, freq, T, face, coupon)
     cash = coup + fval
 
     tmp = (time * cash).sum() / cash.sum()
@@ -188,7 +151,7 @@ def calcDuration(ytm, freq, T, face, coupon):
 
 def calcYtm(price, face, T, coupon, freq, guess=0.05):
     """ Calculates the approximate YTM """
-    fun = lambda y: evalCouponBond(y, freq, T, face, coupon)[y] - price
+    fun = lambda y: evalCouponBond(y, freq, T, face, coupon) - price
     return optimize.newton(fun, guess)
 
 
@@ -208,14 +171,10 @@ def calcConvexity(price, face, T, coupon, freq, dy):
     """
     ytm = calcYtm(price, face, T, coupon, freq)
 
-    diffs = [
-        ytm - dy,
-        ytm + dy, ]
+    inc = evalCouponBond(ytm + dy, freq, T, face, coupon)
+    dec = evalCouponBond(ytm - dy, freq, T, face, coupon)
 
-    prices = evalCouponBond(diffs, freq, T, face, coupon)
-    high, low = prices.values()
-
-    c = high + low - 2 * price
+    c = inc + dec - 2 * price
     c /= price * dy ** 2
     return c
 

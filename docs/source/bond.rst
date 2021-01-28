@@ -13,16 +13,6 @@ The bond pricing tools presented on this page take the form of
         import practice.finance.bond as bond
 
 
-Many of the definitions and examples presented this page were
-leveraged from the following sources:
-
-    - https://www.investopedia.com/terms/b/bond-valuation.asp
-    - https://www.investopedia.com/terms/d/duration.asp
-    - https://www.investopedia.com/terms/m/macaulayduration.asp
-    - https://www.investopedia.com/terms/m/modifiedduration.asp
-    - https://www.investopedia.com/terms/c/convexity.asp
-
-
 Present Valuation
 ------------------
 
@@ -63,8 +53,8 @@ Example
         total_coup = bond.evalCouponBond(ytm, freq, T, face, coupon)
         total_zero = bond.evalZeroCouponBond(ytm, freq, T, face)
 
-        assert total_zero[ytm] == fval.sum()
-        assert total_coup[ytm] == (fval + coup).sum()
+        assert total_zero == fval.sum()
+        assert total_coup == (fval + coup).sum()
 
         price = PresentValues.sum().sum()
         print(f"\nThe present value of the bond is: ${price:.2f}\n""")
