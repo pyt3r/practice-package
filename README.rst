@@ -65,20 +65,32 @@ testing (via `Azure Pipelines`_), as well as automated documentation (via
 
 .. end links
 
-.. ..contents:: :local:
+.. contents:: :local:
 
+
+Installation
+*************
 
 The package may be installed via conda::
 
     $ conda install practice -c pyt3r
+
+
+Documentation
+*************
 
 Please refer to the documentation page for descriptions and examples:
 
 * https://practice-package.readthedocs.io
 
 
-About:
-
-* ``pyt3r``
+License
+*************
 
 * `MIT License`_
+
+
+Author
+*************
+
+* ``pyt3r``
