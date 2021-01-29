@@ -2,9 +2,9 @@
 Welcome to the practice-package!
 ================================
 
-The practice-package is ongoing project intended to assist with one's
-understanding of topics and problems across the domains of software
-development, finance, machine learning, science, and math.
+The practice-package is ongoing project intended to explore topics
+and problems in software development, quantitative finance, machine
+learning, and probability.
 
 The package also serves as a boiler plate for configuring automated
 testing (via `Azure Pipelines`_), as well as automated documentation (via
