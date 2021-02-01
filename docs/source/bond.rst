@@ -1,5 +1,5 @@
-Bonds
-======
+Bond Analysis
+==============
 
 .. toctree::
    :maxdepth: 1

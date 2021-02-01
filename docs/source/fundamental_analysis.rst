@@ -1,16 +1,16 @@
-Asset Performance
-==================
+Fundamental Analysis
+====================
 
 .. toctree::
    :maxdepth: 1
 
 
-The performance indicators presented on this page take the form
+The fundamental analysis tools presented on this page take the form
 of ``python`` functions and may be imported as follows:
 
     .. jupyter-execute::
 
-        import practice.finance.performance as perf
+        import practice.finance.fundamental_analysis as fa
 
 
 To assist with the demonstration and visualization of the indicators
@@ -79,15 +79,15 @@ the Capital Asset Pricing Model.
             fr'$\beta$({annual_window})', ]
 
 
-        asset_returns = perf.percentChange(asset, returns_window)
-        market_returns = perf.percentChange(market, returns_window)
+        asset_returns = fa.percentChange(asset, returns_window)
+        market_returns = fa.percentChange(market, returns_window)
 
         results = [
-            perf.calcVolatity(asset, annual_window),
-            perf.calcVolatity(market, annual_window),
-            perf.beta(asset_returns, market_returns, beta_window20),
-            perf.beta(asset_returns, market_returns, beta_window50),
-            perf.beta(asset_returns, market_returns, annual_window), ]
+            fa.calcVolatity(asset, annual_window),
+            fa.calcVolatity(market, annual_window),
+            fa.beta(asset_returns, market_returns, beta_window20),
+            fa.beta(asset_returns, market_returns, beta_window50),
+            fa.beta(asset_returns, market_returns, annual_window), ]
 
         DF = pandas.DataFrame(dict(zip(columns, results)))
         print(DF.tail())

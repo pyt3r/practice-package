@@ -22,9 +22,9 @@ https://github.com/pyt3r/practice-package.
    :caption: Contents:
 
    getting_started
-   technical_analysis
    bond
-   performance
+   technical_analysis
+   fundamental_analysis
    probability/index
    leet/index
    patterns/index
