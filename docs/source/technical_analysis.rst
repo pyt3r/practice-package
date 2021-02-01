@@ -1,5 +1,5 @@
-Technical Analysis Indicators
-=============================
+Technical Analysis
+==================
 
 .. toctree::
    :maxdepth: 1
