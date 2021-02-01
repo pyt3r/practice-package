@@ -153,8 +153,9 @@ def calcDuration(ytm, freq, T, face, coupon):
 
 def calcYtm(price, face, T, coupon, freq, guess=0.05):
     """ Calculates the Yield to Maturity """
-    fun = lambda y: calcBondPrice(y, freq, T, face, coupon) - price
-    return optimize.newton(fun, guess)
+    def closure(y):
+        return calcBondPrice(y, freq, T, face, coupon) - price
+    return optimize.newton(closure, guess)
 
 
 def calcModDuration(duration, freq, ytm):
