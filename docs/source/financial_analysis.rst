@@ -1,16 +1,16 @@
-Fundamental Analysis
+Financial Analysis
 ====================
 
 .. toctree::
    :maxdepth: 1
 
 
-The fundamental analysis tools presented on this page take the form
+The financial analysis tools presented on this page take the form
 of ``python`` functions and may be imported as follows:
 
     .. jupyter-execute::
 
-        import practice.finance.fundamental_analysis as fa
+        import practice.finance.financial_analysis as fa
 
 
 To assist with the demonstration and visualization of the indicators

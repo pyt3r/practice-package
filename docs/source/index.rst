@@ -24,7 +24,7 @@ https://github.com/pyt3r/practice-package.
    getting_started
    bond
    technical_analysis
-   fundamental_analysis
+   financial_analysis
    probability/index
    leet/index
    patterns/index
