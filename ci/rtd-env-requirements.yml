@@ -1,18 +1,32 @@
 name: rtd-env
+
 channels:
   - conda-forge
   - defaults
+
 dependencies:
-  # build dependencies:
+  - conda-build
   - pip
   - pyyaml
+
+  # == docs dependencies ==
   - sphinx
   - sphinx_rtd_theme
   - sphinx-gallery
   - jupyter_sphinx
   - pip:
       - rst2pdf
-  # gallery dependencies:
+
+  # == dev dependencies ==
+  - coverage
+  - flake8
+
+  # == lib dependencies ==
+  - python-graphviz
+  - pytables
   - pandas
+  - xlsxwriter
   - scipy
   - matplotlib
+  - redis-py
+  - requests
