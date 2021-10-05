@@ -4,15 +4,15 @@ from numpy import log
 
 def calcVolatity(metric, window):
     """ Calculates the generalized volatility. """
-    log_returns = logReturns(metric)
+    log_returns = logReturns(metric, window)
     return log_returns.rolling(window).std() * sqrt(window)
 
 
-def logReturns(metric):
-    return log(metric).diff()
+def logReturns(metric, window):
+    return log(metric).diff(window)
 
 
-def percentChange(metric, window):
+def simpleReturns(metric, window):
     return metric.pct_change(window)
 
 
