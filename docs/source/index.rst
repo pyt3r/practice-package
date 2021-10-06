@@ -25,6 +25,5 @@ https://github.com/pyt3r/practice-package.
    bond
    technical_analysis
    financial_analysis
+   problems/index
    probability/index
-   leet/index
-   patterns/index
