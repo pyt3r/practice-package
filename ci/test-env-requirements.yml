@@ -1,12 +1,24 @@
 name: test-env
+
 channels:
+  - conda-forge
   - defaults
+
 dependencies:
-  # build dependencies
   - conda-build
+  - pip
+  - pyyaml
+
+  # == dev dependencies ==
   - coverage
   - flake8
-  # lib dependencies
+
+  # == lib dependencies ==
+  - python-graphviz
+  - pytables
   - pandas
+  - xlsxwriter
   - scipy
   - matplotlib
+  - redis-py
+  - requests
