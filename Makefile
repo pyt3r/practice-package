@@ -3,7 +3,7 @@ PACKAGE_PATH=`python -c "import ${PACKAGE_NAME}, os; print(os.path.dirname(${PAC
 PYVERSION=3.7
 
 test-env:
-	conda env create --name test-env-${PACKAGE_NAME} --file ci/test-env-requirements.yml python=${PYVERSION}
+	conda env create --file ci/test-env-requirements.yml python=${PYVERSION}
 
 remove-test-env:
 	conda env remove --name test-env-${PACKAGE_NAME}
