@@ -5,8 +5,8 @@ channels:
   - defaults
 
 dependencies:
+  - python=3.8
   - conda-build
-  - pip
   - pyyaml
 
   # == dev dependencies ==
@@ -20,5 +20,3 @@ dependencies:
   - xlsxwriter
   - scipy
   - matplotlib
-  - redis-py
-  - requests
