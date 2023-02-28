@@ -1,6 +1,6 @@
 PACKAGE_NAME=practice
 PACKAGE_PATH=`python -c "import ${PACKAGE_NAME}, os; print(os.path.dirname(${PACKAGE_NAME}.__file__))"`
-PYVERSION=3.7
+PYVERSION=3.8
 
 test-env:
 	conda env create --file ci/test-env-requirements.yml python=${PYVERSION}
