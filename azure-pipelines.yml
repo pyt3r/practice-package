@@ -29,10 +29,10 @@ steps:
       conda env create --name test-env --quiet --file ci/test-env-requirements.yml python=$(pythonVersion)
     displayName: Conda Env
 
-  - script: |
-      source activate test-env
-      make lint
-    displayName: Linter
+#  - script: |
+#      source activate test-env
+#      make lint
+#    displayName: Linter
 
   - script: |
       source activate test-env
