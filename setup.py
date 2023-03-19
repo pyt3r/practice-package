@@ -9,7 +9,7 @@ here = path.abspath(path.dirname(__file__))
 meta = yaml.load(open(path.join(here, 'conda-recipe', 'meta.yaml'), 'rb'), Loader=yaml.SafeLoader)
 name = meta['package']['name']
 package = importlib.import_module(name)
-package_data = package.dumpResourceManifest()
+package_data = package.dumpPackageData()
 
 
 setup(
