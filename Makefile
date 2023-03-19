@@ -1,5 +1,6 @@
 PACKAGE_NAME=practice
 PACKAGE_PATH=`python -c "import ${PACKAGE_NAME}, os; print(os.path.dirname(${PACKAGE_NAME}.__file__))"`
+TESTS_PATH=${PACKAGE_PATH}/tests
 PYVERSION=3.8
 
 test-env:
@@ -27,7 +28,10 @@ lint:
 	python -m flake8 ${PACKAGE_NAME}/ --count --show-source --statistics
 
 test:
-	coverage run -m unittest discover tests
+	coverage run -m \
+		--source=${PACKAGE_PATH} \
+		--omit=${TESTS_PATH}/* \
+		unittest discover ${TESTS_PATH}
 	coverage report -m
 	coverage html
 	coverage xml
@@ -38,11 +42,8 @@ conda-package:
 	conda install ./**/*.tar.bz2
 
 test-package:
-	cd tests && \
-	coverage run -m --source=${PACKAGE_PATH} unittest discover . && \
-	coverage report -m && \
-	coverage html && \
-	coverage xml && \
+	cd ${TESTS_PATH} && \
+	python -c "import ${PACKAGE_NAME}; ${PACKAGE_NAME}.test('unittests')" && \
 	conda uninstall ${PACKAGE_NAME} -y --force && \
 	cd ..
 
