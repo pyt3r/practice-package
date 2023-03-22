@@ -17,12 +17,13 @@ def fun9(a,*args,c=3,d=4): pass
 def fun10(a=1,b=2,c=3,d=4): pass
 def fun11(a=1,b=2,c=3,d=4,**kw): pass
 def fun12(**kw): pass
+def fun13(*args, **kw): pass
 
 
 class TestCases(unittest.TestCase):
 
     def setUp(self):
-        self.funs = [fun0, fun1, fun2, fun3, fun4, fun5, fun6, fun7, fun8, fun9, fun10, fun11, fun12]
+        self.funs = [fun0, fun1, fun2, fun3, fun4, fun5, fun6, fun7, fun8, fun9, fun10, fun11, fun12, fun13]
 
     def test_view(self):
         arr = []
@@ -36,7 +37,7 @@ class TestCases(unittest.TestCase):
             arr.append(result)
 
         result = np.array(arr).astype(float)
-        np.testing.assert_array_equal(np.identity(13), result)
+        np.testing.assert_array_equal(np.identity(14), result)
 
     def test_case_args(self):
         results = {k: o.getArgs() for k, o in self.iterator()}
@@ -54,7 +55,8 @@ class TestCases(unittest.TestCase):
              'fun9': [],
              'fun10': [],
              'fun11': [],
-             'fun12': [],}
+             'fun12': [],
+             'fun13': [],}
         )
 
     def test_case_kwargs(self):
@@ -73,7 +75,8 @@ class TestCases(unittest.TestCase):
              'fun9': {'c': 3, 'd': 4},
              'fun10': {'a': 1, 'b': 2, 'c': 3, 'd': 4},
              'fun11': {'a': 1, 'b': 2, 'c': 3, 'd': 4},
-             'fun12': {},}
+             'fun12': {},
+             'fun13': {},}
         )
 
     def test_case_argsFlags(self):
@@ -92,7 +95,8 @@ class TestCases(unittest.TestCase):
              'fun9': False,
              'fun10': True,
              'fun11': True,
-             'fun12': True,}
+             'fun12': True,
+             'fun13': False,}
         )
 
     def test_case_kwargsFlags(self):
@@ -111,7 +115,8 @@ class TestCases(unittest.TestCase):
              'fun9': True,
              'fun10': True,
              'fun11': False,
-             'fun12': False,}
+             'fun12': False,
+             'fun13': False,}
         )
 
     def iterator(self):
