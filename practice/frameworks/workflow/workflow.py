@@ -81,7 +81,7 @@ class Workflow:
     def _run(self, data, func, inputs, kwargs, outputs):
         args   = tuple(data[k] for k in inputs)
         value  = func(*args, **kwargs)
-        result = self._collect(outputs, value)
+        result = self._getResult(outputs, value)
         data.update(result)
         return data
 
@@ -96,8 +96,8 @@ class Workflow:
         return self.runNext(data)
 
     @staticmethod
-    def _collect(outputs, value):
-        """ unpacks the calculated value and updates results """
+    def _getResult(outputs, value):
+        """ unpacks the calculated value """
         if not isinstance(value,(tuple, list)):
             value = (value,)
 
@@ -111,3 +111,10 @@ class Workflow:
         """ builds a dag representation of the workflow """
         from practice.frameworks import api
         return api.buildDag(self.outputs, self.funcs, self.inputs)
+
+    def asDF(self):
+        """ represents workflow as a DataFrame """
+        vals = [self._order, self.strings, self.inputs, self.kwargs, self.outputs]
+        keys = WorkflowDF.getColumns()
+        data = pd.DataFrame(dict(zip(keys, vals)))
+        return WorkflowDF(data).asNative()
