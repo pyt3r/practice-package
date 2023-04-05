@@ -136,32 +136,37 @@ if __name__ == "__main__":
 
     def driver(data, workflow):
         """ drives a workflow """
-        w = workflow.create()
-        dag = w.buildDag()
+        dag = workflow.buildDag()
         dag.view()
 
-        results = w.run(data)
+        results = workflow.run(data)
         fig = results["fig"]
         fig.show()
         return results
 
 
+    # == Run Analysis 1 ==
+    workflow = Analysis1.create()
     data = {
         "ticker"   : "jpm",
         "dateCol"  : "Date",
         "valueCol" : "Close", }
-    results1 = driver(data, Analysis1)
+    results1 = driver(data, workflow)
 
 
+    # == Run Analysis 2 ==
+    workflow = Analysis2.create()
     data = {
         "ticker"   : "jpm",
         "dateCol"  : "Date",
         "valueCol" : "Close",
         "start"    : pd.to_datetime("2007-01-01"),
         "end"      : pd.to_datetime("2009-12-31"), }
-    results2 = driver(data, Analysis2)
+    results2 = driver(data, workflow)
 
 
+    # == Run Analysis 3 ==
+    workflow = Analysis3.create()
     data = {
         "ticker"      : "jpm",
         "dateCol"     : "Date",
@@ -170,8 +175,11 @@ if __name__ == "__main__":
         "end"         : pd.to_datetime("2009-12-31"),
         "longWindow"  : 30,
         "shortWindow" : 5, }
-    results3 = driver(data, Analysis3)
+    results3 = driver(data, workflow)
 
+
+    # == Run Analysis 4 ==
+    workflow = Analysis4.create()
     data = {
         "ticker"      : "jpm",
         "dateCol"     : "Date",
@@ -180,5 +188,4 @@ if __name__ == "__main__":
         "end"         : pd.to_datetime("2009-12-31"),
         "longWindow"  : 30,
         "shortWindow" : 5, }
-
-    results4 = driver(data, Analysis4)
+    results4 = driver(data, workflow)
