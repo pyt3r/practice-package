@@ -25,7 +25,7 @@ class Analysis1(api.Workflow):
     ]
 
 class Analysis2(api.Workflow):
-    """ Generates a timeseries plot of JPM's stock price during the great recession """
+    """ Generates a timeseries plot of JPM's stock price during the 2008 recession """
     TASKS = [
         [0, f"{HERE}.getFilepath", "ticker", {}, "filepath"],
         [1, f"{pd.__name__}.read_csv", "filepath", {}, "data"],
@@ -37,13 +37,13 @@ class Analysis2(api.Workflow):
         [6, f"{HERE}.plot", ("datesSliced", "priceSliced"),
              { "xlabel"  : "Date",
                "ylabels" : ("Price",),
-               "title"   : "Price vs Time during the Great Recession", },
+               "title"   : "Price vs Time during the 2008 Recession", },
          "fig"],
     ]
 
 
 class Analysis3(api.Workflow):
-    """ Generates a simple moving average of JPM's stock price during the great recession """
+    """ Generates a simple moving average of JPM's stock price during the 2008 recession """
     TASKS = [
         [0, f"{HERE}.getFilepath", "ticker", {}, "filepath"],
         [1, f"{pd.__name__}.read_csv", "filepath", {}, "data"],
@@ -57,13 +57,13 @@ class Analysis3(api.Workflow):
         [7, f"{HERE}.plot", ("datesSliced", "priceSliced", "longSMA", "shortSMA"),
          { "xlabel"  : "Date",
            "ylabels" : ("Price", "longSMA", "shortSMA"),
-           "title"   : "Simple Moving Averages (SMAs) during the Great Recession", },
+           "title"   : "Simple Moving Averages (SMAs) during the 2008 Recession", },
          "fig"],
     ]
 
 
 class Analysis4(api.Workflow):
-    """ Generates a exponential moving average of JPM's stock price during the great recession """
+    """ Generates a exponential moving average of JPM's stock price during the 2008 recession """
     TASKS = [
         [0, f"{HERE}.getFilepath", "ticker", {}, "filepath"],
         [1, f"{pd.__name__}.read_csv", "filepath", {}, "data"],
@@ -77,7 +77,7 @@ class Analysis4(api.Workflow):
         [7, f"{HERE}.plot", ("datesSliced", "priceSliced", "longEMA", "shortEMA"),
          { "xlabel"  : "Date",
            "ylabels" : ("Price", "longEMA", "shortEMA"),
-           "title"   : "Exponential Moving Averages (EMAs) during the Great Recession", },
+           "title"   : "Exponential Moving Averages (EMAs) during the 2008 Recession", },
          "fig"],
     ]
 
