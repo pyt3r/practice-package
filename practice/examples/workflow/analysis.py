@@ -41,7 +41,6 @@ class Analysis2(api.Workflow):
          "fig"],
     ]
 
-
 class Analysis3(api.Workflow):
     """ Generates a simple moving average of JPM's stock price during the 2008 recession """
     TASKS = [
@@ -54,33 +53,13 @@ class Analysis3(api.Workflow):
         [5, f"{HERE}.applyMask", ("price", "dateMask"), {}, "priceSliced"],
         [6, f"{ta.__name__}.simpleMA", ("priceSliced", "longWindow"), {}, "longSMA"],
         [6, f"{ta.__name__}.simpleMA", ("priceSliced", "shortWindow"), {}, "shortSMA"],
-        [7, f"{HERE}.plot", ("datesSliced", "priceSliced", "longSMA", "shortSMA"),
+        [7, f"{ta.__name__}.crossover", ("shortSMA", "longSMA", "crossWindow"), {}, "crossSMA"],
+        [8, f"{HERE}.plot", ("datesSliced", "priceSliced", "longSMA", "shortSMA", "crossSMA"),
          { "xlabel"  : "Date",
-           "ylabels" : ("Price", "longSMA", "shortSMA"),
-           "title"   : "Simple Moving Averages (SMAs) during the 2008 Recession", },
+           "ylabels" : ("Price", "longSMA", "shortSMA", "crossover"),
+           "title"   : "SMA Crossover System during the 2008 Recession", },
          "fig"],
     ]
-
-
-class Analysis4(api.Workflow):
-    """ Generates a exponential moving average of JPM's stock price during the 2008 recession """
-    TASKS = [
-        [0, f"{HERE}.getFilepath", "ticker", {}, "filepath"],
-        [1, f"{pd.__name__}.read_csv", "filepath", {}, "data"],
-        [2, f"{HERE}.toDatetime", ("data", "dateCol"), {}, "dates"],
-        [3, f"{HERE}.getDateMask", ("dates", "start", "end"), {}, "dateMask"],
-        [4, f"{HERE}.getColumn", ("data",), {"column": "Close"}, "price"],
-        [5, f"{HERE}.applyMask", ("dates", "dateMask"), {}, "datesSliced"],
-        [5, f"{HERE}.applyMask", ("price", "dateMask"), {}, "priceSliced"],
-        [6, f"{ta.__name__}.expMA", ("priceSliced", "longWindow"), {}, "longEMA"],
-        [6, f"{ta.__name__}.expMA", ("priceSliced", "shortWindow"), {}, "shortEMA"],
-        [7, f"{HERE}.plot", ("datesSliced", "priceSliced", "longEMA", "shortEMA"),
-         { "xlabel"  : "Date",
-           "ylabels" : ("Price", "longEMA", "shortEMA"),
-           "title"   : "Exponential Moving Averages (EMAs) during the 2008 Recession", },
-         "fig"],
-    ]
-
 
 
 def getFilepath(ticker):
@@ -140,6 +119,7 @@ if __name__ == "__main__":
         dag.view()
 
         results = workflow.run(data)
+
         fig = results["fig"]
         fig.show()
         return results
@@ -173,19 +153,8 @@ if __name__ == "__main__":
         "valueCol"    : "Close",
         "start"       : pd.to_datetime("2007-01-01"),
         "end"         : pd.to_datetime("2009-12-31"),
-        "longWindow"  : 30,
-        "shortWindow" : 5, }
+        "longWindow"  : 50,
+        "shortWindow" : 15,
+        "crossWindow" : 1,
+    }
     results3 = driver(data, workflow)
-
-
-    # == Run Analysis 4 ==
-    workflow = Analysis4.create()
-    data = {
-        "ticker"      : "jpm",
-        "dateCol"     : "Date",
-        "valueCol"    : "Close",
-        "start"       : pd.to_datetime("2007-01-01"),
-        "end"         : pd.to_datetime("2009-12-31"),
-        "longWindow"  : 30,
-        "shortWindow" : 5, }
-    results4 = driver(data, workflow)
