@@ -19,7 +19,7 @@ class WorkflowDF:
 
     def __init__(self, DF):
         self._validate(DF)
-        self._data = DF.sort_values(self._order)[self.getColumns()].reset_index()
+        self._data = DF.sort_values(self._order)[self.getColumns()].reset_index(drop=True)
 
     @classmethod
     def _validate(cls, DF):

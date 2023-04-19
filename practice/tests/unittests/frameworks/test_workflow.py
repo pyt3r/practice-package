@@ -21,6 +21,12 @@ class TestCases(unittest.TestCase):
         o = self.Workflow.create()
         self.assertListEqual(o.defaultkwargs,  [{}, {}, {'xx': 1}, {'x': 0.5, 'xx': 1}])
 
+    def test_createFromDF(self):
+        DF = self.Workflow.create().asDF()
+        wf = workflow.Workflow.createFromDF(DF)
+        results = wf.run()
+        self.assertDictEqual(results, {'a': 2, 'b': 6, 'c1': 4.0, 'c11': 6.0, 'c12': 8, 'c2': 8})
+
 
 class TestNextCases(unittest.TestCase):
 

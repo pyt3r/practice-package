@@ -49,7 +49,7 @@ class Inspector:
     def getHandlers():
         return [
             Case0, Case1, Case2, Case3, Case4, Case5, Case6,
-            Case7, Case8, Case9, Case10, Case11, Case12, ]
+            Case7, Case8, Case9, Case10, Case11, Case12, Case13, ]
 
     def getHandler(self):
         for handler in self.getHandlers():
@@ -165,6 +165,12 @@ class Case12(Inspector):
     """ def fun12(**kw) """
     SELECTED_CONDITIONS = [0,0,1,0,0,0,1]
     ARGS_FLAG = True
+
+
+class Case13(Inspector):
+    """ def fun13(*args, **kw) """
+    SELECTED_CONDITIONS = [0,1,1,0,0,0,1]
+
 
 
 
