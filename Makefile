@@ -4,13 +4,13 @@ TESTS_PATH=${PACKAGE_PATH}/tests
 PYVERSION=3.8
 
 test-env:
-	conda env create --file ci/test-env-requirements.yml python=${PYVERSION}
+	conda create --file ci/test-env-requirements.yml python=${PYVERSION}
 
 remove-test-env:
 	conda env remove --name test-env-${PACKAGE_NAME}
 
 rtd-env:
-	conda env create --file ci/rtd-env-requirements.yml python=${PYVERSION}
+	conda create --file ci/rtd-env-requirements.yml python=${PYVERSION}
 
 _pip-env:
 	python -m venv pip-env
