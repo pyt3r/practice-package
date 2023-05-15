@@ -1,6 +1,7 @@
-import pandas as pd
-from practice.frameworks.workflow import process, exception
-from practice.frameworks.workflow.encapsulate import WorkflowDF, WorkflowDict
+from practice.frameworks.table import Table
+from practice.frameworks.workflow import exception
+from practice.frameworks.workflow.process import Process
+from practice.frameworks.workflow.encapsulate import WorkflowDict, SCHEMA
 
 
 class Workflow:
@@ -10,52 +11,21 @@ class Workflow:
     @classmethod
     def create(cls):
         """ creates from class variables """
-        data = cls.TASKS
-        cls._validate(data)
-        DF = pd.DataFrame(data, columns=WorkflowDF.getColumns())
-        return cls.createFromDF(DF)
+        table = Table.createFromRows(cls.TASKS, SCHEMA.getColumns())
+        return cls.createFromTable(table)
 
     @classmethod
     def createFromDF(cls, DF):
-        DF      = WorkflowDF(DF)
-        order   = DF.order
-        strings = DF.funcPath
-        inputs  = DF.inputKeys
-        kwlist  = DF.kwargs
-        outputs = DF.outputKeys
-        tasks   = list(zip(strings, inputs, kwlist, outputs))
-        return cls(order, tasks)
+        table = Table.createFromDF(DF, SCHEMA.getColumns())
+        return cls.createFromTable(table)
 
-    @staticmethod
-    def _validate(data):
-        assert isinstance(data, list)
-        columns = WorkflowDF.getColumns()
-        assert all(len(row) == len(columns) for row in data)
+    @classmethod
+    def createFromTable(cls, table):
+        return cls(table)
 
-    def __init__(self, order, tasks):
-        self._order = order
-        self._tasks = tasks
-        self.reset()
-
-    def reset(self):
-        self._nCompleted   = 0
-        self._nTotal       = len(self._order)
-        Process            = process.Process(self._tasks)
-        self.inputs        = Process.Inputs()
-        self.outputs       = Process.Outputs()
-        self.strings       = Process.Strings()
-        self.funcs         = Process.Funcs(self.strings)
-        self.kwargs        = Process.Kwargs(self.strings, self.funcs)
-        self.defaultkwargs = Process.DefaultKwargs(self.funcs, self.kwargs)
-        Process.Validate(self.strings, self.funcs, self.inputs)
-        self.tasks = zip(self.funcs, self.inputs, self.kwargs, self.outputs)
-
-    def isRunnable(self):
-        return self._nCompleted < self._nTotal
-
-    def _getNextIndex(self):
-        if self.isRunnable():
-            return self._order[self._nCompleted]
+    def __init__(self, taskTable):
+        self._table = taskTable.sort(SCHEMA.ORDER)
+        self.tasks  = Process.buildTaskIterator(self._table)
 
     def run(self, data=None):
         """ calls a sequence of tasks """
@@ -63,20 +33,29 @@ class Workflow:
             data = self.runNext(data)
         return data or {}
 
+    def isRunnable(self):
+        return self.tasks.isNextable()
+
     def runNext(self, data=None):
+        currIx, *task = self.tasks.getNext()
+        return self._runNext(data, currIx, task)
+
+    def runSelected(self, i, data=None):
+        order = list(self.tasks.getPrimary(SCHEMA.ORDER))
+        ix = order.index(i)
+        currIx, *task = self.tasks.getSelected(ix)
+        return self._runNext(data, currIx, task)
+
+    def _runNext(self, data, currIx, task):
         data = WorkflowDict(data)
-        currIx = nextIx = self._getNextIndex()
-        while self.isRunnable() and nextIx == currIx:
-            task   = next(self)
-            data   = self._run(data, *task)
-            nextIx = self._getNextIndex()
+        data = self._run(data, *task)
+        nextIx, *_ = self.tasks.peekNext()
+        while self.isRunnable() and currIx == nextIx:
+            currIx, *task = self.tasks.getNext()
+            data = self._run(data, *task)
+            nextIx, *_ = self.tasks.peekNext()
 
         return data.asNative()
-
-    def __next__(self):
-        task = next(self.tasks)
-        self._nCompleted += 1
-        return task
 
     def _run(self, data, func, inputs, kwargs, outputs):
         args   = tuple(data[k] for k in inputs)
@@ -84,16 +63,6 @@ class Workflow:
         result = self._getResult(outputs, value)
         data.update(result)
         return data
-
-    def runSelected(self, i, data=None):
-        """ skips until the iterator reaches the ith task """
-        self.reset()
-        nSkips = self._order.index(i)
-        nCompleted = 0
-        while nCompleted < nSkips:
-            next(self)
-            nCompleted = self._nCompleted
-        return self.runNext(data)
 
     @staticmethod
     def _getResult(outputs, value):
@@ -107,14 +76,23 @@ class Workflow:
 
         return {k: v for k, v in zip(outputs, value)}
 
-    def buildDag(self):
-        """ builds a dag representation of the workflow """
+    def asDag(self):
+        """ represnts workflow as a dag """
         from practice.frameworks import api
-        return api.buildDag(self.outputs, self.funcs, self.inputs)
+        args = []
+        for key in [SCHEMA.OUTPUTS, SCHEMA.FUNCS, SCHEMA.INPUTS]:
+            val = self.tasks.getPrimary(key).asNative()
+            args.append(val)
+        return api.buildDag(*args)
 
     def asDF(self):
+        """ represents workflow as a Table """
+        return self.asTable().asDF()
+
+    def asTable(self):
         """ represents workflow as a DataFrame """
-        vals = [self._order, self.strings, self.inputs, self.kwargs, self.outputs]
-        keys = WorkflowDF.getColumns()
-        data = pd.DataFrame(dict(zip(keys, vals)))
-        return WorkflowDF(data).asNative()
+        return self._table
+
+    def getDefaultKwargs(self):
+        col = Process.DEBUG_COLUMS[0]
+        return self.tasks.getPrimary(col).asNative()

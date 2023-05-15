@@ -19,7 +19,7 @@ class TestCases(unittest.TestCase):
 
     def test_workflow_defaultkwargs(self):
         o = self.Workflow.create()
-        self.assertListEqual(o.defaultkwargs,  [{}, {}, {'xx': 1}, {'x': 0.5, 'xx': 1}])
+        self.assertListEqual(o.getDefaultKwargs(),  [{}, {}, {'xx': 1}, {'x': 0.5, 'xx': 1}])
 
     def test_createFromDF(self):
         DF = self.Workflow.create().asDF()
@@ -63,8 +63,8 @@ class TestFreeMemoryCases(unittest.TestCase):
         data = self.workflow.run()
         self.assertDictEqual(data, {'a': 2, 'b': 6, 'c1': 4.0, 'c12': 8, 'c2': 8, "deleted": "c11"})
 
-    def test_buildDag(self):
-        o = self.workflow.buildDag()
+    def test_Dag(self):
+        o = self.workflow.asDag()
         #o.view()
 
 

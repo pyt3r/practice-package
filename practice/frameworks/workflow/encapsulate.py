@@ -1,55 +1,21 @@
+from enum import Enum
 
-class WorkflowDF:
-    """ wrapper around a dictionary to control access to columns """
 
-    _order      = "order"
-    _funcPath   = "funcPath"
-    _inputKeys  = "inputKeys"
-    _kwargs     = "kwargs"
-    _outputKeys = "outputKeys"
+class SCHEMA:
+    ORDER   = "order"
+    FUNCS   = "funcPath"
+    INPUTS  = "inputKeys"
+    KWLIST  = "kwargs"
+    OUTPUTS = "outputKeys"
 
     @classmethod
     def getColumns(cls):
         return [
-            cls._order,
-            cls._funcPath,
-            cls._inputKeys,
-            cls._kwargs,
-            cls._outputKeys, ]
-
-    def __init__(self, DF):
-        self._validate(DF)
-        self._data = DF.sort_values(self._order)[self.getColumns()].reset_index(drop=True)
-
-    @classmethod
-    def _validate(cls, DF):
-        assert all(c in DF for c in cls.getColumns())
-
-    def asNative(self):
-        return self._data
-
-    @property
-    def order(self):
-        return self._tolist(self._order)
-
-    @property
-    def funcPath(self):
-        return self._tolist(self._funcPath)
-
-    @property
-    def inputKeys(self):
-        return self._tolist(self._inputKeys)
-
-    @property
-    def kwargs(self):
-        return self._tolist(self._kwargs)
-
-    @property
-    def outputKeys(self):
-        return self._tolist(self._outputKeys)
-
-    def _tolist(self, key):
-        return self.asNative()[key].tolist()
+            cls.ORDER,
+            cls.FUNCS,
+            cls.INPUTS,
+            cls.KWLIST,
+            cls.OUTPUTS, ]
 
 
 class WorkflowDict:

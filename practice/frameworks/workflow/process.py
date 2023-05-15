@@ -1,10 +1,38 @@
 import pydoc
 from practice.frameworks import inspector
 from practice.frameworks.workflow import exception
-
+from practice.frameworks.workflow.encapsulate import SCHEMA
+from practice.frameworks.table import Table
 
 class Process:
     """ validates and processes workflow tasks and kwargs """
+
+    COLUMNS = [
+        SCHEMA.ORDER,
+        SCHEMA.FUNCS,
+        SCHEMA.INPUTS,
+        SCHEMA.KWLIST,
+        SCHEMA.OUTPUTS, ]
+
+    DEBUG_COLUMS = ["defaultkwargs"]
+
+    @classmethod
+    def buildTaskIterator(cls, taskTable):
+        tasksIter     = taskTable.asIterator()
+        process       = cls(tasksIter)
+        order         = process.Order()
+        inputs        = process.Inputs()
+        outputs       = process.Outputs()
+        strings       = process.Strings()
+        funcs         = process.Funcs(strings)
+        kwargs        = process.Kwargs(strings, funcs)
+        defaultkwargs = process.DefaultKwargs(funcs, kwargs)
+        process.Validate(strings, funcs, inputs)
+        vals  = [order, funcs, inputs, kwargs, outputs, defaultkwargs]
+        cols  = cls.COLUMNS + cls.DEBUG_COLUMS
+        tasks = Table.createFromVals(vals, cols).asIterator()
+        tasks.setViewOrder(cls.COLUMNS)
+        return tasks
 
     def __init__(self, tasks):
         self.tasks = tasks
@@ -12,6 +40,9 @@ class Process:
     def __call__(self, cls, *args):
         handler = cls(self.tasks)
         return handler.run(*args)
+
+    def Order(self):
+        return self(Order)
 
     def Inputs(self):
         return self(Inputs)
@@ -43,29 +74,34 @@ class Process:
             yield tuple(k for k in key)
 
     def _processKwargs(self):
-        return (kw or {} for kw in self._process(2))
+        return (kw or {} for kw in self._process(SCHEMA.KWLIST))
 
     def _process(self, i):
-        for task in self.tasks:
-            yield task[i]
+        return self.tasks.getPrimary(i)
+
+class Order(Process):
+    """ processes task input keys """
+
+    def run(self):
+        return list(self._process(SCHEMA.ORDER))
 
 class Inputs(Process):
     """ processes task input keys """
 
     def run(self):
-        return list(self._processXputs(1))
+        return list(self._processXputs(SCHEMA.INPUTS))
 
 class Outputs(Process):
     """ processes task output keys """
 
     def run(self):
-        return list(self._processXputs(3))
+        return list(self._processXputs(SCHEMA.OUTPUTS))
 
 class Strings(Process):
     """ processes task strings """
 
     def run(self):
-        return list(self._process(0))
+        return list(self._process(SCHEMA.FUNCS))
 
 class Funcs(Process):
     """ processes task funcs """
