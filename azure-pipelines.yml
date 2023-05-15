@@ -5,7 +5,7 @@ strategy:
   matrix:
     linux:
       imageName: 'ubuntu-latest'
-      pythonVersion: '3.8'
+      pythonVersion: '3.8.*'
 
 pool:
   vmImage: $(imageName)
@@ -26,7 +26,7 @@ steps:
     displayName: Add conda to PATH
 
   - script: |
-      conda env create --name test-env --quiet --file ci/test-env-requirements.yml python=$(pythonVersion)
+      conda create --name test-env --quiet --file ci/test-env-requirements.yml python=$(pythonVersion)
     displayName: Conda Env
 
 #  - script: |
