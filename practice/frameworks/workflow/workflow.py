@@ -25,7 +25,7 @@ class Workflow:
 
     def __init__(self, taskTable):
         self._table = taskTable.sort(SCHEMA.ORDER)
-        self.tasks  = Process.buildTaskIterator(self._table)
+        self._tasks = Process.buildTaskIterator(self._table)
 
     def run(self, data=None):
         """ calls a sequence of tasks """
@@ -34,26 +34,26 @@ class Workflow:
         return data or {}
 
     def isRunnable(self):
-        return self.tasks.isNextable()
+        return self._tasks.isNextable()
 
     def runNext(self, data=None):
-        currIx, *task = self.tasks.getNext()
+        currIx, *task = self._tasks.getNext()
         return self._runNext(data, currIx, task)
 
     def runSelected(self, i, data=None):
-        order = list(self.tasks.getPrimary(SCHEMA.ORDER))
+        order = list(self._tasks.getPrimary(SCHEMA.ORDER))
         ix = order.index(i)
-        currIx, *task = self.tasks.getSelected(ix)
+        currIx, *task = self._tasks.getSelected(ix)
         return self._runNext(data, currIx, task)
 
     def _runNext(self, data, currIx, task):
         data = WorkflowDict(data)
         data = self._run(data, *task)
-        nextIx, *_ = self.tasks.peekNext()
+        nextIx, *_ = self._tasks.peekNext()
         while self.isRunnable() and currIx == nextIx:
-            currIx, *task = self.tasks.getNext()
+            currIx, *task = self._tasks.getNext()
             data = self._run(data, *task)
-            nextIx, *_ = self.tasks.peekNext()
+            nextIx, *_ = self._tasks.peekNext()
 
         return data.asNative()
 
@@ -81,7 +81,7 @@ class Workflow:
         from practice.frameworks import api
         args = []
         for key in [SCHEMA.OUTPUTS, SCHEMA.FUNCS, SCHEMA.INPUTS]:
-            val = self.tasks.getPrimary(key).asNative()
+            val = self._tasks.getPrimary(key).asNative()
             args.append(val)
         return api.buildDag(*args)
 
@@ -95,4 +95,4 @@ class Workflow:
 
     def getDefaultKwargs(self):
         col = Process.DEBUG_COLUMS[0]
-        return self.tasks.getPrimary(col).asNative()
+        return self._tasks.getPrimary(col).asNative()

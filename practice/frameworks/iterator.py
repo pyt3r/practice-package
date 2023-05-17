@@ -1,14 +1,16 @@
+from practice.frameworks.table import Table
+
+
 class Iterator:
 
     @classmethod
     def fromArrays(cls, one, another, *others):
         arrays = (one, another) + others
         data   = {i: array for i, array in enumerate(arrays)}
-        return cls.fromTableData(data)
+        return cls.fromDict(data)
 
     @classmethod
     def fromDict(cls, data):
-        from practice.frameworks.table import Table
         table = Table.createWithoutSchema(data)
         return cls.fromTable(table)
 
@@ -45,8 +47,13 @@ class Iterator:
         return Primary(array)
 
     def asTable(self):
-        from practice.frameworks.table import Table
         return Table.createWithoutSchema(self.asNative())
+
+    def __iter__(self):
+        self.reset()
+        while self.isNextable():
+            yield next(self)
+        self.reset()
 
     def __next__(self):
         return self.getNext()

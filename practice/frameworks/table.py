@@ -1,15 +1,12 @@
-import pandas as pd
-
-
 class Table:
 
     @classmethod
     def createFromRows(cls, rows, columns):
-        tmp   = Table.createFromArrays(*rows)
-        ncols = tmp.asDF().T.shape[1]
-        assert ncols == len(columns)
-        DF    = pd.DataFrame(rows, columns=columns)
-        return cls.createFromDF(DF, columns)
+        tmpCols    = [i for i, _ in enumerate(rows)]
+        tmpTable   = cls.createFromVals(rows, tmpCols)
+        transposed = tmpTable.transpose()
+        native     = transposed.asNative()
+        return cls.createFromVals(native.values(), columns)
 
     @classmethod
     def createFromVals(cls, vals, columns):
@@ -36,12 +33,11 @@ class Table:
         return cls(data, columns)
 
     def __init__(self, data, columns):
-        if not columns:
-            raise
+        assert columns
         columns = columns if isinstance(columns, (list, tuple)) else [columns]
         self.validate(data, columns)
         self.data    = data
-        self.columns = sorted(set(columns))
+        self.columns = columns
         self.length  = len(self.data[self.columns[0]])
 
     @classmethod
@@ -51,6 +47,7 @@ class Table:
 
     @staticmethod
     def _validateKeys(data, columns):
+        assert len(columns) == len(set(columns))
         assert len(columns) > 0
         a = set(data.keys())
         b = set(columns)
@@ -69,7 +66,13 @@ class Table:
         from practice.frameworks.iterator import Iterator
         return Iterator.fromDict(self.asNative())
 
+    def transpose(self):
+        data = {i: list(vals) for i, vals in enumerate(self.asIterator())}
+        cols = list(data.keys())
+        return self.createWithSchema(data, cols)
+
     def asDF(self):
+        import pandas as pd
         return pd.DataFrame(self.asNative())
 
     def sort(self, *a, **kw):
