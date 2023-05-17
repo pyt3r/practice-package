@@ -13,11 +13,10 @@ HERE = "practice.examples.workflow.analysis"
 class Analysis1(api.Workflow):
     """ Generates a timeseries plot of JPM's stock price """
     TASKS = [
-        [0, f"{HERE}.getFilepath", "ticker", {}, "filepath"],
-        [1, f"{pd.__name__}.read_csv", "filepath", {}, "data"],
-        [2, f"{HERE}.toDatetime", ("data", "dateCol"), {}, "dates"],
-        [2, f"{HERE}.getColumn", ("data",), {"column": "Close"}, "price"],
-        [3, f"{HERE}.plot", ("dates", "price"),
+        [0, f"{HERE}.getQuandlData", "ticker", {}, "data"],
+        [1, f"{HERE}.toDatetime", ("data", "dateCol"), {}, "dates"],
+        [1, f"{HERE}.getColumn", ("data",), {"column": "Close"}, "price"],
+        [2, f"{HERE}.plot", ("dates", "price"),
              { "xlabel"  : "Date",
                "ylabels" : ("Price",),
                "title"   : "Price vs Time", },
@@ -27,14 +26,13 @@ class Analysis1(api.Workflow):
 class Analysis2(api.Workflow):
     """ Generates a timeseries plot of JPM's stock price during the 2008 recession """
     TASKS = [
-        [0, f"{HERE}.getFilepath", "ticker", {}, "filepath"],
-        [1, f"{pd.__name__}.read_csv", "filepath", {}, "data"],
-        [2, f"{HERE}.toDatetime", ("data", "dateCol"), {}, "dates"],
-        [3, f"{HERE}.getDateMask", ("dates", "start", "end"), {}, "dateMask"],
-        [4, f"{HERE}.getColumn", ("data",), {"column": "Close"}, "price"],
-        [5, f"{HERE}.applyMask", ("dates", "dateMask"), {}, "datesSliced"],
-        [5, f"{HERE}.applyMask", ("price", "dateMask"), {}, "priceSliced"],
-        [6, f"{HERE}.plot", ("datesSliced", "priceSliced"),
+        [0, f"{HERE}.getQuandlData", "ticker", {}, "data"],
+        [1, f"{HERE}.toDatetime", ("data", "dateCol"), {}, "dates"],
+        [2, f"{HERE}.getDateMask", ("dates", "start", "end"), {}, "dateMask"],
+        [3, f"{HERE}.getColumn", ("data",), {"column": "Close"}, "price"],
+        [4, f"{HERE}.applyMask", ("dates", "dateMask"), {}, "datesSliced"],
+        [4, f"{HERE}.applyMask", ("price", "dateMask"), {}, "priceSliced"],
+        [5, f"{HERE}.plot", ("datesSliced", "priceSliced"),
              { "xlabel"  : "Date",
                "ylabels" : ("Price",),
                "title"   : "Price vs Time during the 2008 Recession", },
@@ -44,17 +42,16 @@ class Analysis2(api.Workflow):
 class Analysis3(api.Workflow):
     """ Generates a simple moving average of JPM's stock price during the 2008 recession """
     TASKS = [
-        [0, f"{HERE}.getFilepath", "ticker", {}, "filepath"],
-        [1, f"{pd.__name__}.read_csv", "filepath", {}, "data"],
-        [2, f"{HERE}.toDatetime", ("data", "dateCol"), {}, "dates"],
-        [3, f"{HERE}.getDateMask", ("dates", "start", "end"), {}, "dateMask"],
-        [4, f"{HERE}.getColumn", ("data",), {"column": "Close"}, "price"],
-        [5, f"{HERE}.applyMask", ("dates", "dateMask"), {}, "datesSliced"],
-        [5, f"{HERE}.applyMask", ("price", "dateMask"), {}, "priceSliced"],
-        [6, f"{ta.__name__}.simpleMA", ("priceSliced", "longWindow"), {}, "longSMA"],
-        [6, f"{ta.__name__}.simpleMA", ("priceSliced", "shortWindow"), {}, "shortSMA"],
-        [7, f"{ta.__name__}.crossover", ("shortSMA", "longSMA", "crossWindow"), {}, "crossSMA"],
-        [8, f"{HERE}.plot", ("datesSliced", "priceSliced", "longSMA", "shortSMA", "crossSMA"),
+        [0, f"{HERE}.getQuandlData", "ticker", {}, "data"],
+        [1, f"{HERE}.toDatetime", ("data", "dateCol"), {}, "dates"],
+        [2, f"{HERE}.getDateMask", ("dates", "start", "end"), {}, "dateMask"],
+        [3, f"{HERE}.getColumn", ("data",), {"column": "Close"}, "price"],
+        [4, f"{HERE}.applyMask", ("dates", "dateMask"), {}, "datesSliced"],
+        [4, f"{HERE}.applyMask", ("price", "dateMask"), {}, "priceSliced"],
+        [5, f"{ta.__name__}.simpleMA", ("priceSliced", "longWindow"), {}, "longSMA"],
+        [5, f"{ta.__name__}.simpleMA", ("priceSliced", "shortWindow"), {}, "shortSMA"],
+        [6, f"{ta.__name__}.crossover", ("shortSMA", "longSMA", "crossWindow"), {}, "crossSMA"],
+        [7, f"{HERE}.plot", ("datesSliced", "priceSliced", "longSMA", "shortSMA", "crossSMA"),
          { "xlabel"  : "Date",
            "ylabels" : ("Price", "longSMA", "shortSMA", "crossover"),
            "title"   : "SMA Crossover System during the 2008 Recession", },
@@ -62,13 +59,10 @@ class Analysis3(api.Workflow):
     ]
 
 
-def getFilepath(ticker):
-    """ gets the filepath for a given ticker """
-    relpath  = f"practice/data/{ticker.lower()}.csv.gz"
-    parts    = [os.path.dirname(practice.__file__), ".."]
-    parts   += relpath.split("/")
-    return os.path.join(*parts)
-
+def getQuandlData(ticker):
+    import quandl
+    DF = quandl.get(ticker)
+    return DF.reset_index(drop=False)
 
 def getDateMask(dates, start, end):
     """ generates a mask for records within a date range  """
@@ -80,7 +74,6 @@ def applyMask(data, mask):
     """ applies a mask to data """
     return data[mask].reset_index(drop=True)
 
-
 def getColumn(data, column=""):
     """ gets a column from data """
     return data[column]
@@ -88,7 +81,6 @@ def getColumn(data, column=""):
 def toDatetime(data, column):
     """ converts to datetime """
     return pd.to_datetime(data[column])
-
 
 def plot(x, *values, ylabels=(), xlabel="", title=""):
     """ plots timeseries data """
@@ -110,12 +102,11 @@ def plot(x, *values, ylabels=(), xlabel="", title=""):
     return fig
 
 
-
 if __name__ == "__main__":
 
     def driver(data, workflow):
         """ drives a workflow """
-        dag = workflow.buildDag()
+        dag = workflow.asDag()
         dag.view()
 
         results = workflow.run(data)
@@ -128,7 +119,7 @@ if __name__ == "__main__":
     # == Run Analysis 1 ==
     workflow = Analysis1.create()
     data = {
-        "ticker"   : "jpm",
+        "ticker"   : "WIKI/JPM",
         "dateCol"  : "Date",
         "valueCol" : "Close", }
     results1 = driver(data, workflow)
@@ -137,7 +128,7 @@ if __name__ == "__main__":
     # == Run Analysis 2 ==
     workflow = Analysis2.create()
     data = {
-        "ticker"   : "jpm",
+        "ticker"   : "WIKI/JPM",
         "dateCol"  : "Date",
         "valueCol" : "Close",
         "start"    : pd.to_datetime("2007-01-01"),
@@ -148,7 +139,7 @@ if __name__ == "__main__":
     # == Run Analysis 3 ==
     workflow = Analysis3.create()
     data = {
-        "ticker"      : "jpm",
+        "ticker"      : "WIKI/JPM",
         "dateCol"     : "Date",
         "valueCol"    : "Close",
         "start"       : pd.to_datetime("2007-01-01"),
