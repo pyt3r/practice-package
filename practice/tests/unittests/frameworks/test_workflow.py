@@ -1,5 +1,7 @@
 import unittest
-from practice.frameworks.workflow import workflow, exception
+from practice.frameworks.workflow import workflow
+from practice.frameworks.workflow.process import ArgsMismatch, InvalidKwargs
+from practice.frameworks import exception as ex
 
 HERE = "practice.tests.unittests.frameworks.test_workflow"
 
@@ -19,11 +21,11 @@ class TestCases(unittest.TestCase):
 
     def test_workflow_defaultkwargs(self):
         o = self.Workflow.create()
-        self.assertListEqual(o.getDefaultKwargs(),  [{}, {}, {'xx': 1}, {'x': 0.5, 'xx': 1}])
+        self.assertTupleEqual(o.getDefaultKwargs(),  ({}, {}, {'xx': 1}, {'x': 0.5, 'xx': 1}))
 
-    def test_createFromDF(self):
+    def test_fromDF(self):
         DF = self.Workflow.create().asDF()
-        wf = workflow.Workflow.createFromDF(DF)
+        wf = workflow.Workflow.fromDF(DF)
         results = wf.run()
         self.assertDictEqual(results, {'a': 2, 'b': 6, 'c1': 4.0, 'c11': 6.0, 'c12': 8, 'c2': 8})
 
@@ -63,7 +65,7 @@ class TestFreeMemoryCases(unittest.TestCase):
         data = self.workflow.run()
         self.assertDictEqual(data, {'a': 2, 'b': 6, 'c1': 4.0, 'c12': 8, 'c2': 8, "deleted": "c11"})
 
-    def test_Dag(self):
+    def test_asDag(self):
         o = self.workflow.asDag()
         #o.view()
 
@@ -77,7 +79,7 @@ class TestErrorCases(unittest.TestCase):
 
     def test_argError(self):
         msg = f"{HERE}.calcB expected=1, received=0"
-        with self.assertRaisesRegex(exception.ArgsMismatch, msg):
+        with self.assertRaisesRegex(ArgsMismatch, msg):
             self.ArgError.create()
 
 
@@ -87,7 +89,7 @@ class TestErrorCases(unittest.TestCase):
 
     def test_kwargError1(self):
         msg = f"({HERE}.calcB', 'x', 1)"
-        with self.assertRaisesRegex(exception.InvalidKwargs, msg):
+        with self.assertRaisesRegex(InvalidKwargs, msg):
             self.KwargError1.create()
 
 
@@ -98,7 +100,7 @@ class TestErrorCases(unittest.TestCase):
 
     def test_kwargError2(self):
         msg = f"({HERE}.calcD', 'z', 1)"
-        with self.assertRaisesRegex(exception.InvalidKwargs, msg):
+        with self.assertRaisesRegex(InvalidKwargs, msg):
             self.KwargError2.create()
 
 
@@ -109,8 +111,9 @@ class TestErrorCases(unittest.TestCase):
             [2, f"{HERE}.calcC" , ("a", "b"), {"x": 1}, ("c1",)], ]
 
     def test_outputLength(self):
-        msg = "received=2, expected=1"
-        with self.assertRaisesRegex(exception.OutputLengthMismatch, msg):
+        exc = ex.MustBeTheSameLengths
+        msg = "lengthsHistogram={1: 1, 2: 1}"
+        with self.assertRaisesRegex(exc, msg):
             self.OutputLength.create().run()
 
 

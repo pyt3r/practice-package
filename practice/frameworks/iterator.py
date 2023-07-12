@@ -1,4 +1,5 @@
 from practice.frameworks.table import Table
+from practice.frameworks import exception as ex
 
 
 class Iterator:
@@ -11,7 +12,8 @@ class Iterator:
 
     @classmethod
     def fromDict(cls, data):
-        table = Table.createWithoutSchema(data)
+        columns = list(data.keys())
+        table   = Table.fromDict(data, columns)
         return cls.fromTable(table)
 
     @classmethod
@@ -21,11 +23,12 @@ class Iterator:
     def __init__(self, table):
         self.table     = table
         self.primaries = {k: Primary(v) for k, v in table.asNative().items()}
-        self.length    = table.length
+        self.length    = table.nrows
         self.setViewOrder(self.getKeys())
 
     def setViewOrder(self, order):
-        assert all(k in self.getKeys() for k in order)
+        acc = ex.Accumulator.map( order, ex.MustContain, self.getKeys() )
+        acc.raiseErrorIf()
         self._order = order
 
     def getViewOrder(self):
@@ -42,12 +45,16 @@ class Iterator:
         vals = self._run(Primary.asNative)
         return dict(zip(keys, vals))
 
+    def asRows(self):
+        return self.asTable().asRows()
+
+    def asTable(self):
+        rows = self.table.asRows()
+        return Table.fromRows(rows, self.table.columns)
+
     def getPrimary(self, key):
         array = self.primaries[key].asNative()
         return Primary(array)
-
-    def asTable(self):
-        return Table.createWithoutSchema(self.asNative())
 
     def __iter__(self):
         self.reset()

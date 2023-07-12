@@ -1,7 +1,7 @@
 from practice.frameworks.table import Table
-from practice.frameworks.workflow import exception
 from practice.frameworks.workflow.process import Process
-from practice.frameworks.workflow.encapsulate import WorkflowDict, SCHEMA
+from practice.frameworks.workflow import schema
+from practice.frameworks import exception as ex
 
 
 class Workflow:
@@ -11,21 +11,21 @@ class Workflow:
     @classmethod
     def create(cls):
         """ creates from class variables """
-        table = Table.createFromRows(cls.TASKS, SCHEMA.getColumns())
-        return cls.createFromTable(table)
+        table = Table.fromList( cls.TASKS, schema.getExternalColumns() )
+        return cls.fromTable( table )
 
     @classmethod
-    def createFromDF(cls, DF):
-        table = Table.createFromDF(DF, SCHEMA.getColumns())
-        return cls.createFromTable(table)
+    def fromDF(cls, DF):
+        table = Table.fromDF( DF, schema.getExternalColumns() )
+        return cls.fromTable( table )
 
     @classmethod
-    def createFromTable(cls, table):
+    def fromTable(cls, table):
         return cls(table)
 
     def __init__(self, taskTable):
-        self._table = taskTable.sort(SCHEMA.ORDER)
-        self._tasks = Process.buildTaskIterator(self._table)
+        self._table = taskTable.sortViaDF( schema.ORDER )
+        self._tasks = Process.buildTaskIterator( self._table )
 
     def run(self, data=None):
         """ calls a sequence of tasks """
@@ -38,30 +38,30 @@ class Workflow:
 
     def runNext(self, data=None):
         currIx, *task = self._tasks.getNext()
-        return self._runNext(data, currIx, task)
+        return self._runNext( data, currIx, task )
 
     def runSelected(self, i, data=None):
-        order = list(self._tasks.getPrimary(SCHEMA.ORDER))
-        ix = order.index(i)
-        currIx, *task = self._tasks.getSelected(ix)
-        return self._runNext(data, currIx, task)
+        order         = list( self._tasks.getPrimary( schema.ORDER ) )
+        currIx, *task = self._tasks.getSelected( order.index(i) )
+        return self._runNext( data, currIx, task )
 
     def _runNext(self, data, currIx, task):
-        data = WorkflowDict(data)
-        data = self._run(data, *task)
+        data       = WorkflowDict( data )
+        data       = self._run( data, *task )
         nextIx, *_ = self._tasks.peekNext()
+
         while self.isRunnable() and currIx == nextIx:
             currIx, *task = self._tasks.getNext()
-            data = self._run(data, *task)
-            nextIx, *_ = self._tasks.peekNext()
+            data          = self._run( data, *task )
+            nextIx, *_    = self._tasks.peekNext()
 
         return data.asNative()
 
-    def _run(self, data, func, inputs, kwargs, outputs):
-        args   = tuple(data[k] for k in inputs)
-        value  = func(*args, **kwargs)
-        result = self._getResult(outputs, value)
-        data.update(result)
+    def _run(self, data, func, inputs, kwargs, outputs, *a, **kw):
+        args   = tuple( data[k] for k in inputs )
+        value  = func( *args, **kwargs )
+        result = self._getResult( outputs, value )
+        data.update( result )
         return data
 
     @staticmethod
@@ -69,21 +69,17 @@ class Workflow:
         """ unpacks the calculated value """
         if not isinstance(value,(tuple, list)):
             value = (value,)
-
-        if len(outputs) != len(value):
-            msg = f"received={len(value)}, expected={len(outputs)}, outputs={outputs}"
-            raise exception.OutputLengthMismatch(msg)
-
-        return {k: v for k, v in zip(outputs, value)}
+        ex.MustBeTheSameLengths.raiseIf(outputs, value)
+        return { k: v for k, v in zip(outputs, value) }
 
     def asDag(self):
         """ represnts workflow as a dag """
         from practice.frameworks import api
         args = []
-        for key in [SCHEMA.OUTPUTS, SCHEMA.FUNCS, SCHEMA.INPUTS]:
-            val = self._tasks.getPrimary(key).asNative()
-            args.append(val)
-        return api.buildDag(*args)
+        for key in [ schema.OUTPUTS, schema.FUNCS, schema.INPUTS ]:
+            val = self._tasks.getPrimary( key ).asNative()
+            args.append( val )
+        return api.buildDag( *args )
 
     def asDF(self):
         """ represents workflow as a Table """
@@ -94,5 +90,37 @@ class Workflow:
         return self._table
 
     def getDefaultKwargs(self):
-        col = Process.DEBUG_COLUMS[0]
-        return self._tasks.getPrimary(col).asNative()
+        return self._tasks.getPrimary( schema.DEFAULT_KW ).asNative()
+
+
+class WorkflowDict:
+    """ wrapper around a dictionary to control access to key-value pairs """
+
+    _SPECIALKEY = "__data__"
+
+    def __init__(self, data=None):
+        data = data or {}
+        self._validate( data )
+        self._data = { self._SPECIALKEY: data }
+
+    @classmethod
+    def _validate(cls, data):
+        ex.MustNotContain.raiseIf( cls._SPECIALKEY, data )
+
+    def asNative(self):
+        return self._data[ self._SPECIALKEY ]
+
+    def __getitem__(self, item):
+        if item != self._SPECIALKEY:
+            return self.asNative()[ item ]
+        return self._data
+
+    def __setitem__(self, key, value):
+        if key != self._SPECIALKEY:
+            self.asNative()[ key ] = value
+        else:
+            self._data = value
+
+    def update(self, data):
+        for k, v in data.items():
+            self[k] = v
