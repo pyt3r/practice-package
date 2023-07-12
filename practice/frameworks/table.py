@@ -1,81 +1,64 @@
+from practice.frameworks.rows import Rows
+from practice.frameworks import exception as ex
+
+
 class Table:
 
     @classmethod
-    def createFromRows(cls, rows, columns):
-        tmpCols    = [i for i, _ in enumerate(rows)]
-        tmpTable   = cls.createFromVals(rows, tmpCols)
-        transposed = tmpTable.transpose()
-        native     = transposed.asNative()
-        return cls.createFromVals(native.values(), columns)
+    def fromDF(cls, DF, columns):
+        arrays = [ DF[c].values.tolist() for c in DF ]
+        return cls.fromArrays(arrays, columns)
 
     @classmethod
-    def createFromVals(cls, vals, columns):
-        ix   = min(len(vals), len(columns))
-        data = dict(zip(columns[:ix], vals))
-        return cls.createWithSchema(data, columns)
+    def fromArrays(cls, arrays, columns):
+        data = dict( zip(columns, arrays) )
+        return cls.fromDict(data, columns)
 
     @classmethod
-    def createFromDF(cls, DF, columns):
-        data = {c: DF[c].values.tolist() for c in DF}
-        return cls.createWithSchema(data, columns)
+    def fromDict(cls, data, columns):
+        rows = Rows.fromDict(data)
+        return cls.fromRows(rows, columns)
 
     @classmethod
-    def createFromArrays(cls, one, *others):
-        arrays = (one,) + others
-        return cls.createWithoutSchema({i: arr for i, arr in enumerate(arrays)})
+    def fromList(cls, data, columns):
+        rows = Rows.fromList(data)
+        return cls.fromRows(rows, columns)
 
     @classmethod
-    def createWithoutSchema(cls, data):
-        return cls.createWithSchema(data, list(data.keys()))
+    def fromRows(cls, rows, columns):
+        return cls(rows, columns)
 
-    @classmethod
-    def createWithSchema(cls, data, columns):
-        return cls(data, columns)
-
-    def __init__(self, data, columns):
-        assert columns
+    def __init__(self, rows, columns):
+        ex.ObjectIsEmptyOrNone.raiseIf( columns )
         columns = columns if isinstance(columns, (list, tuple)) else [columns]
-        self.validate(data, columns)
-        self.data    = data
+        self.validate(rows, columns)
+        self.rows    = rows
+        self.ncols   = rows.ncols
+        self.nrows   = rows.nrows
         self.columns = columns
-        self.length  = len(self.data[self.columns[0]])
 
     @classmethod
-    def validate(cls, data, columns):
-        cls._validateKeys(data, columns)
-        cls._validateVals(data)
-
-    @staticmethod
-    def _validateKeys(data, columns):
-        assert len(columns) == len(set(columns))
-        assert len(columns) > 0
-        a = set(data.keys())
-        b = set(columns)
-        assert a ^ b == set()
-
-    @staticmethod
-    def _validateVals(data):
-        vals = list(data.values())
-        length = set(len(v) for v in vals)
-        assert len(length) == 1
+    def validate(cls, rows, columns):
+        ex.MustBeUnique.raiseIf( columns )
+        ex.MustBeTheSame( rows.ncols, len(columns) )
 
     def asNative(self):
-        return self.data
+        arrays = self.asRows().asArrays()
+        return dict(zip(self.columns, arrays))
+
+    def asRows(self):
+        values = self.rows.asNative()
+        return Rows.fromList(values)
 
     def asIterator(self):
         from practice.frameworks.iterator import Iterator
-        return Iterator.fromDict(self.asNative())
-
-    def transpose(self):
-        data = {i: list(vals) for i, vals in enumerate(self.asIterator())}
-        cols = list(data.keys())
-        return self.createWithSchema(data, cols)
+        return Iterator.fromTable(self)
 
     def asDF(self):
         import pandas as pd
         return pd.DataFrame(self.asNative())
 
-    def sort(self, *a, **kw):
+    def sortViaDF(self, *a, **kw):
         """ returns a sorted table based on parameters specified """
         sorted = self.asDF().sort_values(*a, **kw)
-        return self.createFromDF(sorted, self.columns)
+        return self.fromDF(sorted, self.columns)

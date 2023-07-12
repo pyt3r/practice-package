@@ -1,5 +1,6 @@
 import inspect
 import numpy as np
+from practice.frameworks import exception as ex
 
 
 class Inspector:
@@ -173,7 +174,6 @@ class Case13(Inspector):
 
 
 
-
 class Conditions:
     """ calculates the conditions for a fullargspec """
     def __init__(self, spec):
@@ -189,6 +189,10 @@ class Conditions:
         self.conditions = [1 if c else 0 for c in conditions]
 
     def check(self, *selections):
-        assert len(selections) == len(self.conditions)
-        assert all(s in (0, 1) for s in selections)
-        return all(s == c for s, c in zip(selections, self.conditions))
+
+        ex.MustBeTheSameLengths.raiseIf( selections, self.conditions )
+
+        acc = ex.Accumulator.map( selections, ex.MustContain, (0, 1) )
+        acc.raiseErrorIf()
+
+        return all( s == c for s, c in zip(selections, self.conditions) )
