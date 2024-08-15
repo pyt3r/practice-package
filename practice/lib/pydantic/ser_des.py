@@ -4,15 +4,17 @@ import json
 from typing import Dict, TypeVar, Type
 
 from pydantic import field_validator
-from practice.lib.pydantic import base
+# from practice.lib.pydantic import base
+import pydantic as base
 
-BaseModelInst = TypeVar('practice.lib.pydantic.base.BaseModel')
+# BaseModelInst = TypeVar('practice.lib.pydantic.base.BaseModel')
+BaseModelInst = TypeVar('pydantic.BaseModel')
 BaseModelType = Type[ base.BaseModel]
 
 
-def toJson( model: BaseModelType ) -> str:
+def toJson( model: BaseModelType, **kw ) -> str:
     data = toDict( model )
-    return json.dumps( data )
+    return json.dumps( data, **kw )
 
 def fromJson( loadable: str ) -> BaseModelType:
     data = json.loads( loadable )
