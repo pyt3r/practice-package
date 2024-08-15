@@ -20,3 +20,4 @@ dependencies:
   - xlsxwriter
   - scipy
   - matplotlib
+  - pydantic
